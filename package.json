@@ -1,13 +1,21 @@
 {
   "name": "agentic-scaffold",
   "version": "0.1.1",
-  "description": "Canonical scaffold for a CLI plus library plus MCP server pack.",
+  "description": "TypeScript scaffold for a Node.js library, CLI, and MCP server with Zod schemas, text statistics, routing adapters, and dispatch guards.",
   "keywords": [
+    "typescript",
+    "Node.js",
     "cli",
     "mcp",
+    "Model Context Protocol",
+    "Zod",
     "scaffold",
     "starter",
-    "typescript"
+    "sdk",
+    "text-statistics",
+    "http",
+    "dispatch",
+    "guards"
   ],
   "license": "MIT",
   "author": "Pooria Arab",
