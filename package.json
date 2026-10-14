@@ -1,6 +1,6 @@
 {
-  "name": "@pooriaarab/agentic-scaffold",
-  "version": "0.1.0",
+  "name": "agentic-scaffold",
+  "version": "0.1.1",
   "description": "Canonical scaffold for a CLI plus library plus MCP server pack.",
   "keywords": [
     "cli",
@@ -13,10 +13,10 @@
   "author": "Pooria Arab",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pooriaarab/agentic-scaffold.git"
+    "url": "git+https://github.com/pooriaarab/agentic-scaffold.git"
   },
   "type": "module",
-  "private": true,
+  "private": false,
   "engines": {
     "node": ">=18"
   },
@@ -36,8 +36,8 @@
     }
   },
   "bin": {
-    "agentic-pack": "./dist/cli.js",
-    "agentic-pack-mcp": "./dist/mcp-bin.js"
+    "agentic-scaffold": "./dist/cli.js",
+    "agentic-scaffold-mcp": "./dist/mcp-bin.js"
   },
   "scripts": {
     "build": "tsup",
