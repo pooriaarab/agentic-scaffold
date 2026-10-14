@@ -1,108 +1,74 @@
-# Agentic scaffold
+# agentic-scaffold
 
-Canonical scaffold for a CLI plus library plus MCP server pack.
+[![npm version](https://img.shields.io/npm/v/agentic-scaffold)](https://www.npmjs.com/package/agentic-scaffold)
+[![Monthly downloads](https://img.shields.io/npm/dm/agentic-scaffold)](https://www.npmjs.com/package/agentic-scaffold)
+[![MIT license](https://img.shields.io/badge/license-MIT-blue)](https://opensource.org/license/mit)
 
-Clone this repo to start a new pack. It gives one core with three
-faces: a terminal command, an npm import, and an MCP server.
+[Package](https://www.npmjs.com/package/agentic-scaffold) · [Source](https://github.com/pooriaarab/agentic-scaffold) · [Support](https://github.com/pooriaarab/agentic-scaffold/issues)
 
-## What you get
+agentic-scaffold is an open-source TypeScript starter for developers who need a Node.js library, command-line interface, and Model Context Protocol (MCP) server.
 
-- One core: brand config, logs, guards, routing, dry run, cost reports.
-- Three faces over that core: CLI, library, MCP server.
-- A frozen core contract, so packs share one API.
-- A worker entry and a wrangler sample for edge deploys.
-- Build, typecheck, and tests that pass from a fresh clone.
+## Install
 
-## Quick start
+```sh
+npm install agentic-scaffold
+```
+
+Requires Node.js 18 or later. Includes TypeScript declarations and two direct dependencies: the MCP SDK and Zod.
+
+## Run your first summary
+
+No credentials, environment variables, or `.env` loader are required.
+
+```sh
+npx agentic-scaffold summary --text "hello world hello"
+```
+
+Success prints JSON with `chars: 17`, `words: 3`, `lines: 1`, and `hello` counted twice.
+
+```js
+import { summarizeText, getCostReport } from "agentic-scaffold";
+console.log(summarizeText("hello world hello"));
+console.log(getCostReport()); // { entries: [], dispatches: 0, units: 0 }
+```
+
+## Features and runtime surfaces
+
+- **Text statistics:** Character, word, line, and top-word counts; no semantic summarization.
+- **Routing:** Two generic adapters: local receipts and HTTP POST with `{ text }`.
+- **Guards:** Optional dispatch caps, UTC quiet hours, and text blocklists.
+- **Utilities:** Brand configuration, stderr logging, dry-run results, and in-memory cost units.
+- **CLI:** `summary`, `dispatch`, `costs`, `mcp`; help via `--help` and version via `--version`.
+- **MCP:** Three tools: `summarize_text`, `dispatch_text`, `get_cost_report`.
+- **Worker scaffold:** Source handler for `GET /health` and `POST /summarize`; users deploy it themselves.
+
+Start MCP with `npx agentic-scaffold mcp`. Preview routing with `npx agentic-scaffold dispatch --text hello --dry-run`.
+
+## Limits
+
+This starter has zero vendor-specific integrations. Local dispatch creates a receipt without external delivery.
+CLI and MCP dispatch use the local adapter by default; SDK callers can supply the HTTP adapter.
+HTTP delivery defaults to a ten-second timeout, with no retries. Cost units count text length rather than billing charges.
+Reports reset when the process exits. CLI help and MCP identity still use the starter name `agentic-pack`.
+
+## Customize a cloned starter
 
 ```sh
 git clone https://github.com/pooriaarab/agentic-scaffold.git my-pack
 cd my-pack
-npm install
-npm run build
-npm run typecheck
-npm test
-```
-
-Run the command:
-
-```sh
+npm ci
+npm run build && npm run typecheck && npm test
 node dist/cli.js summary --text "hello world hello"
 ```
 
-Call the library:
+Replace `__PACK_NAME__`, `__NPM_NAME__`, `__PACK_COMMAND__`, `__PACK_DESCRIPTION__`, `__PACK_KEYWORDS__`, and `__GITHUB_USER__` wherever they appear.
+Check `AGENTS.md`, `SKILL.md`, `RULES.md`, `llms.txt`, `server.json`, `.mcp.json`, and `wrangler.jsonc`.
+Update package identity, bin commands, `mcpName`, and `DEFAULT_BRAND` in `src/index.ts`.
+Set the MCP manifest version and repository ID before publishing your own package.
 
-```js
-import { summarizeText } from "./dist/index.js";
-
-console.log(summarizeText("hello world hello"));
-```
-
-Start the MCP server:
-
-```sh
-node dist/cli.js mcp
-```
-
-## Three usecases
-
-1. You run one text summary from the terminal.
-2. You import the summary function in a script.
-3. You let an agent call the same function as an MCP tool.
-
-## Clone checklist
-
-This repo is a template. Replace each slot in each file that holds it.
-
-- `__PACK_NAME__`: the directory name, like `my-pack`.
-- `__NPM_NAME__`: the npm name, like `agentic-<block>` (bare name, never @pooriaarab/ scoped unless the brief says scoped).
-- `__PACK_COMMAND__`: the terminal command, like `my-pack`.
-- `__PACK_DESCRIPTION__`: one plain sentence, under 100 chars.
-- `__PACK_KEYWORDS__`: plain keywords, like `notes, search, cli`.
-- `__GITHUB_USER__`: the repo owner, like `pooriaarab`.
-
-Slot files: `AGENTS.md`, `SKILL.md`, `RULES.md`, `llms.txt`,
-`server.json`, `.mcp.json`, `wrangler.jsonc`.
-
-Then rename the scaffold identity itself:
-
-- `package.json`: name, bin commands, mcpName. Remove `"private": true`.
-- `src/index.ts`: the `DEFAULT_BRAND` fields.
-- This file: the pitch and the examples above.
-
-At publish time, set `server.json` version to the npm version and
-`server.json` repository id from `gh api repos/OWNER/REPO --jq .id`.
-
-## Gates
-
-Run all three before you push a pack:
-
-```sh
-npm run build && npm run typecheck && npm test
-```
-
-Then run the real installed CLI once from a tarball:
-
-```sh
-npm pack
-npx --yes --package ./pooriaarab-agentic-scaffold-0.1.0.tgz agentic-pack summary --text "hello"
-```
-
-## Release flow
-
-Push to `main` for review. Merge to `release` to publish. The
-publish workflow ships only when the version is new.
-
-## Layout
-
-- `src/index.ts`: the library face.
-- `src/cli.ts`: the terminal face.
-- `src/mcp.ts`: the MCP server. `src/mcp-bin.ts` starts it.
-- `src/worker.ts`: the edge worker face.
-- `src/core.ts`: the shared core.
-- `agentic-core.d.ts`: the frozen contract.
-- `docs/agentic-core.md`: the contract in plain words.
+The repository includes a shared core contract and a publish workflow. Inspect that workflow before adopting its release process.
+Version 0.1.1 is an early starter release; interfaces can change.
 
 ## License
 
-MIT. See `LICENSE`.
+MIT.
