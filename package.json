@@ -53,6 +53,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "clean": "rm -rf dist",
+    "install-all": "node scripts/install-all.mjs",
     "ci:local": "WRANGLER_SEND_METRICS=false npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
