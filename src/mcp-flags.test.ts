@@ -33,9 +33,34 @@ describe("mcp flags exit without starting the server", () => {
     ["cli.js", ["mcp", "--help"]],
     ["cli.js", ["mcp", "-h"]],
     ["mcp-bin.js", ["--help"]],
+    ["mcp-bin.js", ["mcp", "--help"]],
+    ["mcp-bin.js", ["mcp", "-h"]],
   ])("%s %j prints help", (file, args) => {
     const result = run(file, args);
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("Usage:");
+  });
+
+  test("the mcp bin's help names the real bin", () => {
+    const result = run("mcp-bin.js", ["mcp", "--help"]);
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("Usage: agentic-scaffold-mcp");
+    expect(result.stdout).not.toContain("agentic-pack-mcp");
+  });
+
+  test("a bare mcp word starts the server, which answers initialize", () => {
+    const request = { jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2025-03-26", capabilities: {}, clientInfo: { name: "test", version: "0.0.0" } } };
+    const result = spawnSync(process.execPath, [join(dir, "mcp-bin.js"), "mcp"], { encoding: "utf8", input: `${JSON.stringify(request)}\n`, timeout: 15_000 });
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("protocolVersion");
+  });
+
+  test.each([
+    ["mcp-bin.js", ["mcp", "--version"]],
+    ["mcp-bin.js", ["mcp", "-V"]],
+  ])("%s %j prints the version", (file, args) => {
+    const result = run(file, args);
+    expect(result.status).toBe(0);
+    expect(result.stdout.trim()).toBe(VERSION);
   });
 });
