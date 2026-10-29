@@ -82,7 +82,7 @@ Update package identity, bin commands, `mcpName`, and `DEFAULT_BRAND` in `src/in
 Set the MCP manifest version and repository ID before publishing your own package.
 
 The repository includes a shared core contract and a publish workflow. Inspect that workflow before adopting its release process.
-Version 0.1.3 is an early starter release; interfaces can change. See [CHANGELOG.md](CHANGELOG.md).
+Version 0.1.4 is an early starter release; interfaces can change. See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 

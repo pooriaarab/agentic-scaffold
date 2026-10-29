@@ -1,6 +1,6 @@
 {
   "name": "agentic-scaffold",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "TypeScript scaffold for a Node.js library, CLI, and MCP server with Zod schemas, text statistics, routing adapters, and dispatch guards.",
   "keywords": [
     "typescript",

@@ -33,9 +33,26 @@ describe("mcp flags exit without starting the server", () => {
     ["cli.js", ["mcp", "--help"]],
     ["cli.js", ["mcp", "-h"]],
     ["mcp-bin.js", ["--help"]],
+    ["mcp-bin.js", ["mcp", "--help"]],
+    ["mcp-bin.js", ["mcp", "-h"]],
   ])("%s %j prints help", (file, args) => {
     const result = run(file, args);
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("Usage:");
+  });
+
+  test("the mcp bin's help names the real bin", () => {
+    const result = run("mcp-bin.js", ["mcp", "--help"]);
+    expect(result.stdout).toContain("Usage: agentic-scaffold-mcp");
+    expect(result.stdout).not.toContain("agentic-pack-mcp");
+  });
+
+  test.each([
+    ["mcp-bin.js", ["mcp", "--version"]],
+    ["mcp-bin.js", ["mcp", "-V"]],
+  ])("%s %j prints the version", (file, args) => {
+    const result = run(file, args);
+    expect(result.status).toBe(0);
+    expect(result.stdout.trim()).toBe(VERSION);
   });
 });

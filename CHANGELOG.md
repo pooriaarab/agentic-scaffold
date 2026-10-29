@@ -4,6 +4,17 @@ All notable changes to this package are in this file. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the package uses
 [Semantic Versioning](https://semver.org/).
 
+## 0.1.4 - 2026-10-29
+
+### Fixed
+
+- `agentic-scaffold-mcp mcp --help`, `-h`, `--version` and `-V` print and exit 0 without starting the MCP server. The bin read only its first argument, so the `mcp` word started the server and it waited on stdin.
+- The `agentic-scaffold-mcp` usage line names the real bin. It said `agentic-pack-mcp`.
+
+### Added
+
+- Tests run the built mcp bin with the `mcp` forms of these flags and check the usage names `agentic-scaffold-mcp`.
+
 ## 0.1.3 - 2026-10-29
 
 ### Removed
