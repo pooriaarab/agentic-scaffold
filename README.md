@@ -59,6 +59,16 @@ node scripts/npm-smoke.mjs agentic-link         # one package
 
 The `npm-smoke` workflow runs it every day and on demand. The table goes to the job summary.
 
+## Install check of all packages together
+
+`scripts/install-all.mjs` runs `npm install` for all 18 `agentic-*` packages at latest, in one clean temp dir. It catches peer conflicts between them. A conflict fails with npm's ERESOLVE output and exit code 1.
+
+```sh
+npm run install-all
+```
+
+The `install-all` workflow runs it every day and on demand. When it fails, the workflow uploads npm's ERESOLVE report as an artifact. This check is not a pull request gate. The workflow can be red while another package is being fixed. Pull request CI runs only the script's unit tests (`npm test`).
+
 ## Limits
 
 This starter has zero vendor-specific integrations. Local dispatch creates a receipt without external delivery.

@@ -14,14 +14,19 @@ import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { ALL_PACKAGES as PACKAGES } from "./agentic-packages.mjs";
 
 const TIMEOUT_MS = 5 * 60 * 1000;
 const TIMEOUT_EXIT = 124;
 
-function installAll(dir) {
-  const env = {
-    ...process.env,
+export function installSpecs(packages = PACKAGES) {
+  return packages.map((pkg) => `${pkg}@latest`);
+}
+
+export function installEnv(base = process.env) {
+  return {
+    ...base,
     CI: "1",
     WRANGLER_SEND_METRICS: "false",
     npm_config_audit: "false",
@@ -30,51 +35,61 @@ function installAll(dir) {
     npm_config_legacy_peer_deps: "false",
     npm_config_update_notifier: "false",
   };
-
-  writeFileSync(
-    join(dir, "package.json"),
-    JSON.stringify({ name: "agentic-install-all", private: true }, null, 2) + "\n",
-  );
-
-  const specs = PACKAGES.map((pkg) => `${pkg}@latest`);
-  console.log(`Installing ${PACKAGES.length} packages together in ${dir}`);
-  console.log(`npm install ${specs.join(" ")}`);
-
-  const result = spawnSync(
-    "npm",
-    ["install", "--no-audit", "--no-fund", "--ignore-scripts", "--package-lock=false", ...specs],
-    {
-      cwd: dir,
-      env,
-      stdio: ["ignore", "inherit", "inherit"],
-      // npm is npm.cmd on Windows, and Node refuses to spawn .cmd without a shell.
-      // The args are fixed strings built from the static package list.
-      shell: process.platform === "win32",
-      timeout: TIMEOUT_MS,
-    },
-  );
-
-  if (result.error) {
-    console.error(`install-all failed to run npm: ${result.error.message}`);
-    return result.error.code === "ETIMEDOUT" ? TIMEOUT_EXIT : 1;
-  }
-
-  if (result.status !== 0) {
-    console.error(`install-all failed with npm exit code ${result.status}`);
-    return result.status ?? 1;
-  }
-
-  console.log("install-all resolved all latest packages together.");
-  return 0;
 }
 
-// Return the exit code instead of calling process.exit() here, so the
-// temp dir is always removed.
-const dir = mkdtempSync(join(tmpdir(), "agentic-install-all-"));
-let code;
-try {
-  code = installAll(dir);
-} finally {
-  rmSync(dir, { recursive: true, force: true });
+// Run the install in a new temp dir and return the exit code. `spawn` and
+// `dirRoot` are injected by the unit tests; the CLI uses the real ones.
+export function runInstall({
+  packages = PACKAGES,
+  spawn = spawnSync,
+  dirRoot = tmpdir(),
+  log = console.log,
+  err = console.error,
+} = {}) {
+  const dir = mkdtempSync(join(dirRoot, "agentic-install-all-"));
+  try {
+    writeFileSync(
+      join(dir, "package.json"),
+      JSON.stringify({ name: "agentic-install-all", private: true }, null, 2) + "\n",
+    );
+
+    const specs = installSpecs(packages);
+    log(`Installing ${packages.length} packages together in ${dir}`);
+    log(`npm install ${specs.join(" ")}`);
+
+    const result = spawn(
+      "npm",
+      ["install", "--no-audit", "--no-fund", "--ignore-scripts", "--package-lock=false", ...specs],
+      {
+        cwd: dir,
+        env: installEnv(),
+        stdio: ["ignore", "inherit", "inherit"],
+        // npm is npm.cmd on Windows, and Node refuses to spawn .cmd without a shell.
+        // The args are fixed strings built from the static package list.
+        shell: process.platform === "win32",
+        timeout: TIMEOUT_MS,
+      },
+    );
+
+    if (result.error) {
+      err(`install-all failed to run npm: ${result.error.message}`);
+      return result.error.code === "ETIMEDOUT" ? TIMEOUT_EXIT : 1;
+    }
+
+    // A null status means npm was killed by a signal. That is a failure.
+    if (result.status !== 0) {
+      err(`install-all failed with npm exit code ${result.status}`);
+      return result.status ?? 1;
+    }
+
+    log("install-all resolved all latest packages together.");
+    return 0;
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 }
-process.exitCode = code;
+
+// Run only when executed directly, so the unit tests can import the helpers.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  process.exitCode = runInstall();
+}
