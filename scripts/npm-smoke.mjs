@@ -6,12 +6,7 @@ import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, writeFileSync, rmSync, appendFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-
-const ALL = [
-  "identity", "realtime", "documents", "spreadsheet", "slides", "drive",
-  "tables", "tasks", "forms", "canvas", "formats", "design", "assistant",
-  "comments", "link", "notify", "search", "scaffold",
-].map((n) => `agentic-${n}`);
+import { ALL_PACKAGES as ALL } from "./agentic-packages.mjs";
 
 // Packages that must export an SDK client subpath. A missing one fails.
 const SDK_SUBPATHS = {

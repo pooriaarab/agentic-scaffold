@@ -2,7 +2,7 @@
 // Install all published agentic packages together in a clean temp project.
 // This catches peer dependency drift across package latest tags.
 //
-// Peer check scope: strict-peer-deps is off on purpose (commit 6c867e2). A
+// Peer check scope: strict-peer-deps is off on purpose. A
 // direct conflict between two packages in PACKAGES still fails with ERESOLVE.
 // A conflict deeper in the tree only logs a warning, and the check passes.
 // Turn on strict-peer-deps only as a deliberate choice, with a note here.
@@ -14,29 +14,7 @@ import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-
-// Keep in sync with the ALL list in scripts/npm-smoke.mjs (the packages that
-// npm-smoke installs one by one). Add a new package to both lists.
-const PACKAGES = [
-  "agentic-identity",
-  "agentic-realtime",
-  "agentic-documents",
-  "agentic-spreadsheet",
-  "agentic-slides",
-  "agentic-drive",
-  "agentic-tables",
-  "agentic-tasks",
-  "agentic-forms",
-  "agentic-canvas",
-  "agentic-formats",
-  "agentic-design",
-  "agentic-assistant",
-  "agentic-comments",
-  "agentic-link",
-  "agentic-notify",
-  "agentic-search",
-  "agentic-scaffold",
-];
+import { ALL_PACKAGES as PACKAGES } from "./agentic-packages.mjs";
 
 const TIMEOUT_MS = 5 * 60 * 1000;
 const TIMEOUT_EXIT = 124;
