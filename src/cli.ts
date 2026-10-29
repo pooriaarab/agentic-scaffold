@@ -45,6 +45,16 @@ export function parseArgs(argv: string[]): CliRequest {
     throw new UsageError(`unknown command "${first}"`);
   }
   request.command = first;
+  if (first === "mcp" && args.length > 0) {
+    if (args[0] === "--help" || args[0] === "-h") {
+      request.command = "help";
+      return request;
+    }
+    if (args[0] === "--version" || args[0] === "-V") {
+      request.command = "version";
+      return request;
+    }
+  }
   while (args.length > 0) {
     const flag = args.shift() as string;
     if (flag === "--dry-run" && request.command === "dispatch") {

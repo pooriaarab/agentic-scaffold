@@ -65,6 +65,22 @@ describe("worker", () => {
     expect(response.status).toBe(503);
   });
 
+  test("a Worker env of plain strings authenticates through AUTH_TOKENS", async () => {
+    const token = "a".repeat(40);
+    const env = { AUTH_TOKENS: JSON.stringify({ [token]: "human:ana" }) };
+    const ok = await worker.fetch(post("/api/v1/summarize", { text: "one two" }, token), env);
+    expect(ok.status).toBe(200);
+    const bad = await worker.fetch(post("/api/v1/summarize", { text: "one two" }, "b".repeat(40)), env);
+    expect(bad.status).toBe(401);
+  });
+
+  test("a short token refuses the whole AUTH_TOKENS table", async () => {
+    const strong = "a".repeat(40);
+    const env = { AUTH_TOKENS: JSON.stringify({ [strong]: "human:ana", short: "human:bob" }) };
+    const response = await worker.fetch(post("/api/v1/summarize", { text: "x" }, strong), env);
+    expect(response.status).toBe(401);
+  });
+
   test("the old /summarize route is gone", async () => {
     const { env, allowed } = await setup();
     const response = await worker.fetch(post("/summarize", { text: "a" }, allowed), env);
