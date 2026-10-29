@@ -1,6 +1,6 @@
 {
   "name": "agentic-scaffold",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "TypeScript scaffold for a Node.js library, CLI, and MCP server with Zod schemas, text statistics, routing adapters, and dispatch guards.",
   "keywords": [
     "typescript",
@@ -57,7 +57,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",
-    "agentic-identity": "^0.7.0",
+    "agentic-identity": "^0.9.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {

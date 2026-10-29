@@ -4,6 +4,12 @@ All notable changes to this package are in this file. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the package uses
 [Semantic Versioning](https://semver.org/).
 
+## 0.1.5 - 2026-10-29
+
+### Changed
+
+- The package depends on `agentic-identity` `^0.9.0`. It was `^0.7.0`. Upgrading needs no code change.
+
 ## 0.1.4 - 2026-10-29
 
 ### Fixed
