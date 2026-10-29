@@ -83,6 +83,8 @@ describe("runInstall", () => {
       expect(call.args.slice(5)).toEqual(ALL_PACKAGES.map((pkg) => `${pkg}@latest`));
       expect(call.opts.timeout).toBe(5 * 60 * 1000);
       expect(call.opts.stdio).toEqual(["ignore", "inherit", "inherit"]);
+      expect(call.opts.shell).toBe(process.platform === "win32");
+      expect(call.opts.env.PATH).toBe(process.env.PATH);
       expect(call.opts.env.CI).toBe("1");
       expect(call.opts.env.npm_config_force).toBe("false");
       expect(call.opts.env.npm_config_legacy_peer_deps).toBe("false");
@@ -116,22 +118,25 @@ describe("runInstall", () => {
 
   test("treats a signal kill (null status) as a failure", () =>
     withRoot((dirRoot) => {
-      const { spawn } = fakeSpawn({ status: null, signal: "SIGKILL" });
+      const { spawn, calls } = fakeSpawn({ status: null, signal: "SIGKILL" });
       expect(runInstall({ spawn, dirRoot, ...quiet })).toBe(1);
+      expect(existsSync(calls[0].opts.cwd)).toBe(false);
     }));
 
-  test("maps a timeout to exit code 124", () =>
+  test("maps a timeout to exit code 124 and removes the temp dir", () =>
     withRoot((dirRoot) => {
-      const { spawn } = fakeSpawn({ error: Object.assign(new Error("spawnSync npm ETIMEDOUT"), { code: "ETIMEDOUT" }) });
+      const { spawn, calls } = fakeSpawn({ error: Object.assign(new Error("spawnSync npm ETIMEDOUT"), { code: "ETIMEDOUT" }) });
       expect(runInstall({ spawn, dirRoot, ...quiet })).toBe(124);
+      expect(existsSync(calls[0].opts.cwd)).toBe(false);
     }));
 
-  test("maps other spawn errors to exit code 1 and logs them", () =>
+  test("maps other spawn errors to exit code 1, logs them, and removes the temp dir", () =>
     withRoot((dirRoot) => {
       const messages = [];
-      const { spawn } = fakeSpawn({ error: Object.assign(new Error("spawnSync npm ENOENT"), { code: "ENOENT" }) });
+      const { spawn, calls } = fakeSpawn({ error: Object.assign(new Error("spawnSync npm ENOENT"), { code: "ENOENT" }) });
       expect(runInstall({ spawn, dirRoot, log: () => {}, err: (m) => messages.push(m) })).toBe(1);
       expect(messages.join("\n")).toContain("ENOENT");
+      expect(existsSync(calls[0].opts.cwd)).toBe(false);
     }));
 
   test("removes the temp dir even when spawn throws", () =>
