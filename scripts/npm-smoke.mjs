@@ -26,7 +26,13 @@ const args = process.argv.slice(2);
 let jsonOut = null;
 const names = [];
 for (let i = 0; i < args.length; i++) {
-  if (args[i] === "--json") jsonOut = args[++i];
+  if (args[i] === "--json") {
+    jsonOut = args[++i];
+    if (!jsonOut || jsonOut.startsWith("-")) {
+      console.error("--json needs a file path");
+      process.exit(2);
+    }
+  }
   else names.push(args[i]);
 }
 const pkgs = names.length ? names : ALL;
@@ -74,7 +80,8 @@ function smoke(pkg) {
       check("cli-help", { ok: false, out: "no cli bin" });
       check("cli-version", { ok: false, out: "no cli bin" });
     } else {
-      check("cli-help", run(bin(cliName), ["--help"], dir));
+      const h = run(bin(cliName), ["--help"], dir);
+      check("cli-help", h.ok && !/usage|--help/i.test(h.out) ? { ok: false, out: `no help text: "${h.out.slice(0, 80)}"` } : h);
       const v = run(bin(cliName), ["--version"], dir);
       check("cli-version", versionResult(v, meta.version));
     }

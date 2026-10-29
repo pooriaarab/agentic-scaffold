@@ -27,7 +27,13 @@ jobs:
       - name: Install each package from npm and exercise it
         env:
           PACKAGES: ${{ inputs.packages }}
-        run: node scripts/npm-smoke.mjs --json "$RUNNER_TEMP/npm-smoke.json" $PACKAGES
+        run: |
+          set -f
+          if ! printf '%s' "$PACKAGES" | grep -Eq '^[a-z0-9 -]*$' || printf '%s' "$PACKAGES" | grep -Eq '(^| )-'; then
+            echo "packages must be package names" >&2
+            exit 2
+          fi
+          node scripts/npm-smoke.mjs --json "$RUNNER_TEMP/npm-smoke.json" $PACKAGES
       - uses: actions/upload-artifact@v4
         if: always()
         with:
