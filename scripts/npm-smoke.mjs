@@ -53,10 +53,11 @@ const env = { ...process.env, WRANGLER_SEND_METRICS: "false", CI: "1", npm_confi
 function run(cmd, argv, cwd, timeout = 60000) {
   const r = spawnSync(cmd, argv, { cwd, env, encoding: "utf8", timeout, stdio: ["ignore", "pipe", "pipe"] });
   const out = `${r.stdout ?? ""}${r.stderr ?? ""}`.trim();
-  return { ok: r.status === 0 && !r.error, out, timedOut: r.error?.code === "ETIMEDOUT" };
+  return { ok: r.status === 0 && !r.error, out, stdout: (r.stdout ?? "").trim(), timedOut: r.error?.code === "ETIMEDOUT" };
 }
+// The version must appear on stdout: a banner on stderr from a server that ignores the flag does not count.
 const versionResult = (r, version) =>
-  r.ok && !new RegExp(`(^|[^\\d.])${version.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^\\d.])`).test(r.out) ? { ok: false, out: `printed "${r.out.slice(0, 80)}", expected ${version}` } : r;
+  r.ok && !new RegExp(`(^|[^\\d.])${version.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^\\d.])`).test(r.stdout) ? { ok: false, out: `printed "${r.out.slice(0, 80)}", expected ${version}` } : r;
 const tail = (s) => s.split("\n").slice(-3).join(" | ").slice(0, 200);
 
 function smoke(pkg) {
