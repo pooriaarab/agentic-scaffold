@@ -42,8 +42,8 @@ function withRoot(fn) {
 const quiet = { log: () => {}, err: () => {} };
 
 describe("package list", () => {
-  // The count is pinned on purpose. A new package must update this test and
-  // the README note, so the daily check does not drift without a review.
+  // The count is pinned on purpose. A new package must update this test, so
+  // the daily check does not change without a review.
   test("has 18 unique agentic-* packages", () => {
     expect(ALL_PACKAGES).toHaveLength(18);
     expect(new Set(ALL_PACKAGES).size).toBe(18);
