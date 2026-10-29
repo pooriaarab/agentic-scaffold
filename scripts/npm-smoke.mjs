@@ -13,6 +13,15 @@ const ALL = [
   "comments", "link", "notify", "search", "scaffold",
 ].map((n) => `agentic-${n}`);
 
+// Packages that must export an SDK client subpath. A missing one fails.
+const SDK_SUBPATHS = {
+  "agentic-identity": "sdk", "agentic-realtime": "sdk", "agentic-notify": "sdk",
+  "agentic-documents": "client", "agentic-spreadsheet": "client", "agentic-slides": "client",
+  "agentic-drive": "client", "agentic-tables": "client", "agentic-tasks": "client",
+  "agentic-forms": "client", "agentic-canvas": "client", "agentic-assistant": "client",
+  "agentic-comments": "client", "agentic-link": "client", "agentic-search": "client",
+};
+
 const args = process.argv.slice(2);
 let jsonOut = null;
 const names = [];
@@ -21,6 +30,11 @@ for (let i = 0; i < args.length; i++) {
   else names.push(args[i]);
 }
 const pkgs = names.length ? names : ALL;
+const unknown = pkgs.filter((n) => !ALL.includes(n));
+if (unknown.length) {
+  console.error(`Unknown package: ${unknown.join(", ")}`);
+  process.exit(2);
+}
 const env = { ...process.env, WRANGLER_SEND_METRICS: "false", CI: "1", npm_config_update_notifier: "false" };
 
 function run(cmd, argv, cwd, timeout = 60000) {
@@ -28,6 +42,8 @@ function run(cmd, argv, cwd, timeout = 60000) {
   const out = `${r.stdout ?? ""}${r.stderr ?? ""}`.trim();
   return { ok: r.status === 0 && !r.error, out, timedOut: r.error?.code === "ETIMEDOUT" };
 }
+const versionResult = (r, version) =>
+  r.ok && !r.out.includes(version) ? { ok: false, out: `printed "${r.out.slice(0, 80)}", expected ${version}` } : r;
 const tail = (s) => s.split("\n").slice(-3).join(" | ").slice(0, 200);
 
 function smoke(pkg) {
@@ -43,7 +59,7 @@ function smoke(pkg) {
     let inst;
     for (let n = 0; n < 4; n++) {
       inst = run("npm", ["install", `${pkg}@latest`, "--no-audit", "--no-fund"], dir, 240000);
-      if (inst.ok || !/ETARGET|notarget/.test(inst.out)) break;
+      if (inst.ok || !/ETARGET|notarget/.test(inst.out) || n === 3) break;
       spawnSync("sleep", ["30"]);
     }
     check("install", inst);
@@ -60,24 +76,28 @@ function smoke(pkg) {
     } else {
       check("cli-help", run(bin(cliName), ["--help"], dir));
       const v = run(bin(cliName), ["--version"], dir);
-      check("cli-version", { ...v, ok: v.ok && v.out.includes(meta.version) });
-      if (v.ok && !v.out.includes(meta.version)) res.errors.push(`cli-version: printed "${tail(v.out)}", expected ${meta.version}`);
+      check("cli-version", versionResult(v, meta.version));
     }
     // MCP: a dedicated *-mcp bin, else the `mcp` subcommand of the CLI.
     const mcpBin = bins[`${pkg}-mcp`] ? bin(`${pkg}-mcp`) : null;
     const mcpCmd = (extra) => (mcpBin ? [mcpBin, extra] : [bin(cliName ?? pkg), "mcp", extra]);
     for (const [label, flag] of [["mcp-help", "--help"], ["mcp-version", "--version"]]) {
+      // With stdin closed a server that ignores the flag exits 0 and prints nothing: require output.
       const [c, ...a] = mcpCmd(flag);
-      check(label, run(c, a, dir, 20000));
+      const r = run(c, a, dir, 20000);
+      if (label === "mcp-version") check(label, versionResult(r, meta.version));
+      else check(label, r.ok && !r.out ? { ok: false, out: "no output" } : r);
     }
     // Imports in Node 22 ESM: main export and the SDK client subpath.
     const exp = meta.exports ?? {};
-    const subs = ["./sdk", "./client"].filter((s) => s in exp);
+    const want = SDK_SUBPATHS[pkg];
+    const subs = want ? [`./${want}`] : [];
     const targets = [pkg, ...subs.map((s) => `${pkg}/${s.slice(2)}`)];
     const src = `const t=${JSON.stringify(targets)};let bad=0;for(const n of t){try{const m=await import(n);const k=Object.keys(m);if(!k.length)throw new Error("no exports");console.log(n,k.length+" exports")}catch(e){bad++;console.error(n,String(e.message).split("\\n")[0])}}process.exit(bad?1:0)`;
     writeFileSync(join(dir, "imp.mjs"), src);
     check("import-main", run("node", ["-e", `import(${JSON.stringify(pkg)}).then(m=>{if(!Object.keys(m).length)throw new Error("no exports")}).catch(e=>{console.error(String(e.message).split("\\n")[0]);process.exit(1)})`, "--input-type=module"], dir));
-    if (subs.length) check("import-sdk", run("node", ["imp.mjs"], dir));
+    if (want && !(subs[0] in exp)) check("import-sdk", { ok: false, out: `exports lacks ${subs[0]}` });
+    else if (subs.length) check("import-sdk", run("node", ["imp.mjs"], dir));
     else res.checks["import-sdk"] = null;
   } catch (e) {
     res.errors.push(`harness: ${e.message}`);
@@ -88,7 +108,11 @@ function smoke(pkg) {
   return res;
 }
 
-const results = pkgs.map(smoke);
+const results = pkgs.map((p) => {
+  const r = smoke(p);
+  console.error(`${r.pkg}@${r.version || "?"}: ${r.errors.length ? "FAIL" : "ok"}`);
+  return r;
+});
 const cols = ["install", "cli-help", "cli-version", "mcp-help", "mcp-version", "import-main", "import-sdk"];
 const mark = (v) => (v === null || v === undefined ? "n/a" : v ? "pass" : "FAIL");
 const lines = [
