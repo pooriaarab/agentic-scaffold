@@ -13,7 +13,7 @@ All notable changes to this package are in this file. The format follows
 
 ### Added
 
-- Tests run the built mcp bin with the `mcp` forms of these flags and check the usage names `agentic-scaffold-mcp`.
+- Tests run the built mcp bin with the `mcp` forms of these flags and check the usage names `agentic-scaffold-mcp`. A bare `mcp` word still starts the server, which answers `initialize`.
 
 ## 0.1.3 - 2026-10-29
 
