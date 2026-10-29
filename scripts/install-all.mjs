@@ -36,6 +36,7 @@ function installAll(dir) {
     CI: "1",
     WRANGLER_SEND_METRICS: "false",
     npm_config_audit: "false",
+    npm_config_force: "false",
     npm_config_fund: "false",
     npm_config_legacy_peer_deps: "false",
     npm_config_update_notifier: "false",
@@ -51,8 +52,8 @@ function installAll(dir) {
   console.log(`npm install ${specs.join(" ")}`);
 
   const result = spawnSync(
-    "npm",
-    ["install", "--no-audit", "--no-fund", "--package-lock=false", ...specs],
+    process.platform === "win32" ? "npm.cmd" : "npm",
+    ["install", "--no-audit", "--no-fund", "--ignore-scripts", "--package-lock=false", ...specs],
     {
       cwd: dir,
       env,
