@@ -43,8 +43,16 @@ describe("mcp flags exit without starting the server", () => {
 
   test("the mcp bin's help names the real bin", () => {
     const result = run("mcp-bin.js", ["mcp", "--help"]);
+    expect(result.status).toBe(0);
     expect(result.stdout).toContain("Usage: agentic-scaffold-mcp");
     expect(result.stdout).not.toContain("agentic-pack-mcp");
+  });
+
+  test("a bare mcp word starts the server, which answers initialize", () => {
+    const request = { jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2025-03-26", capabilities: {}, clientInfo: { name: "test", version: "0.0.0" } } };
+    const result = spawnSync(process.execPath, [join(dir, "mcp-bin.js"), "mcp"], { encoding: "utf8", input: `${JSON.stringify(request)}\n`, timeout: 15_000 });
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("protocolVersion");
   });
 
   test.each([

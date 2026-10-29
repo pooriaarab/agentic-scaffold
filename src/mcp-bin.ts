@@ -4,15 +4,16 @@ import { DEFAULT_BRAND } from "./index.js";
 import { VERSION } from "./version.js";
 
 // The `mcp` word may come first, as the package CLI takes it: `agentic-scaffold-mcp mcp --help`.
+// Like the CLI, only the first argument after it is read as a flag.
 const argv = process.argv.slice(2);
 const args = argv[0] === "mcp" ? argv.slice(1) : argv;
-const has = (...names: string[]) => args.some((a) => names.includes(a));
+const flag = args[0];
 
-if (has("--help", "-h")) {
+if (flag === "--help" || flag === "-h") {
   console.log(`${DEFAULT_BRAND.name} ${VERSION}\nUsage: agentic-scaffold-mcp [mcp] [--help | --version]\nStarts the MCP server on stdio.`);
   process.exit(0);
 }
-if (has("--version", "-V")) {
+if (flag === "--version" || flag === "-V") {
   console.log(VERSION);
   process.exit(0);
 }
