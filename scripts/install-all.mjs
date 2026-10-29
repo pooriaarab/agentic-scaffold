@@ -20,7 +20,7 @@ import { ALL_PACKAGES as PACKAGES } from "./agentic-packages.mjs";
 const TIMEOUT_MS = 5 * 60 * 1000;
 const TIMEOUT_EXIT = 124;
 
-export function installSpecs(packages = PACKAGES) {
+function installSpecs(packages = PACKAGES) {
   return packages.map((pkg) => `${pkg}@latest`);
 }
 

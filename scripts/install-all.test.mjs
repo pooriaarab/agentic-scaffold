@@ -42,12 +42,13 @@ function withRoot(fn) {
 const quiet = { log: () => {}, err: () => {} };
 
 describe("package list", () => {
+  // The count is pinned on purpose. A new package must update this test and
+  // the README note, so the daily check does not drift without a review.
   test("has 18 unique agentic-* packages", () => {
     expect(ALL_PACKAGES).toHaveLength(18);
     expect(new Set(ALL_PACKAGES).size).toBe(18);
     for (const pkg of ALL_PACKAGES) expect(pkg).toMatch(/^agentic-[a-z]+$/);
   });
-
 });
 
 describe("installEnv", () => {
@@ -65,6 +66,13 @@ describe("installEnv", () => {
 });
 
 describe("runInstall", () => {
+  test("passes only the given packages to npm, each at latest", () =>
+    withRoot((dirRoot) => {
+      const { spawn, calls } = fakeSpawn({ status: 0 });
+      expect(runInstall({ packages: ["agentic-a", "agentic-b"], spawn, dirRoot, ...quiet })).toBe(0);
+      expect(calls[0].args.slice(5)).toEqual(["agentic-a@latest", "agentic-b@latest"]);
+    }));
+
   test("returns 0 and runs one npm install with every latest spec", () =>
     withRoot((dirRoot) => {
       const { spawn, calls } = fakeSpawn({ status: 0 });
