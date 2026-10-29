@@ -38,7 +38,6 @@ function installAll(dir) {
     npm_config_audit: "false",
     npm_config_fund: "false",
     npm_config_legacy_peer_deps: "false",
-    npm_config_strict_peer_deps: "true",
     npm_config_update_notifier: "false",
   };
 
@@ -53,7 +52,7 @@ function installAll(dir) {
 
   const result = spawnSync(
     "npm",
-    ["install", "--no-audit", "--no-fund", "--package-lock=false", "--strict-peer-deps", ...specs],
+    ["install", "--no-audit", "--no-fund", "--package-lock=false", ...specs],
     {
       cwd: dir,
       env,
@@ -61,7 +60,6 @@ function installAll(dir) {
       maxBuffer: 20 * 1024 * 1024,
       stdio: ["ignore", "pipe", "pipe"],
       timeout: TIMEOUT_MS,
-      killSignal: "SIGKILL",
     },
   );
 
