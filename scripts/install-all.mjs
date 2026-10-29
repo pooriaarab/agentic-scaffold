@@ -1,11 +1,22 @@
 #!/usr/bin/env node
 // Install all published agentic packages together in a clean temp project.
 // This catches peer dependency drift across package latest tags.
+//
+// Peer check scope: strict-peer-deps is off on purpose (commit 6c867e2). A
+// direct conflict between two packages in PACKAGES still fails with ERESOLVE.
+// A conflict deeper in the tree only logs a warning, and the check passes.
+// Turn on strict-peer-deps only as a deliberate choice, with a note here.
+//
+// Cleanup: the temp dir is removed in `finally`. Signals (SIGTERM, SIGINT) do
+// not run `finally` here, because spawnSync blocks the event loop and signal
+// handlers cannot run. CI runners are ephemeral, so a leftover dir is harmless.
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
+// Keep in sync with the ALL list in scripts/npm-smoke.mjs (the packages that
+// npm-smoke installs one by one). Add a new package to both lists.
 const PACKAGES = [
   "agentic-identity",
   "agentic-realtime",
