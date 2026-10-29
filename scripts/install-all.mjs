@@ -27,18 +27,21 @@ const PACKAGES = [
   "agentic-scaffold",
 ];
 
-const dir = mkdtempSync(join(tmpdir(), "agentic-install-all-"));
-const env = {
-  ...process.env,
-  CI: "1",
-  WRANGLER_SEND_METRICS: "false",
-  npm_config_audit: "false",
-  npm_config_fund: "false",
-  npm_config_legacy_peer_deps: "false",
-  npm_config_update_notifier: "false",
-};
+const TIMEOUT_MS = 5 * 60 * 1000;
+const TIMEOUT_EXIT = 124;
 
-try {
+function installAll(dir) {
+  const env = {
+    ...process.env,
+    CI: "1",
+    WRANGLER_SEND_METRICS: "false",
+    npm_config_audit: "false",
+    npm_config_fund: "false",
+    npm_config_legacy_peer_deps: "false",
+    npm_config_strict_peer_deps: "true",
+    npm_config_update_notifier: "false",
+  };
+
   writeFileSync(
     join(dir, "package.json"),
     JSON.stringify({ name: "agentic-install-all", private: true }, null, 2) + "\n",
@@ -50,14 +53,15 @@ try {
 
   const result = spawnSync(
     "npm",
-    ["install", "--no-audit", "--no-fund", "--package-lock=false", ...specs],
+    ["install", "--no-audit", "--no-fund", "--package-lock=false", "--strict-peer-deps", ...specs],
     {
       cwd: dir,
       env,
       encoding: "utf8",
       maxBuffer: 20 * 1024 * 1024,
       stdio: ["ignore", "pipe", "pipe"],
-      timeout: 5 * 60 * 1000,
+      timeout: TIMEOUT_MS,
+      killSignal: "SIGKILL",
     },
   );
 
@@ -66,15 +70,25 @@ try {
 
   if (result.error) {
     console.error(`install-all failed to run npm: ${result.error.message}`);
-    process.exit(result.error.code === "ETIMEDOUT" ? 124 : 1);
+    return result.error.code === "ETIMEDOUT" ? TIMEOUT_EXIT : 1;
   }
 
   if (result.status !== 0) {
     console.error(`install-all failed with npm exit code ${result.status}`);
-    process.exit(result.status ?? 1);
+    return result.status ?? 1;
   }
 
   console.log("install-all resolved all latest packages together.");
+  return 0;
+}
+
+// Return the exit code instead of calling process.exit() here, so the
+// temp dir is always removed.
+const dir = mkdtempSync(join(tmpdir(), "agentic-install-all-"));
+let code;
+try {
+  code = installAll(dir);
 } finally {
   rmSync(dir, { recursive: true, force: true });
 }
+process.exitCode = code;
