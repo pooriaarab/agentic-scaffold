@@ -12,6 +12,7 @@ jobs:
   install-all:
     env:
       WRANGLER_SEND_METRICS: "false"
+      npm_config_cache: ${{ runner.temp }}/npm-cache
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -26,6 +27,8 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: install-all-eresolve-report
-          path: /home/runner/.npm/_logs/*-eresolve-report.txt
+          name: install-all-npm-logs
+          path: |
+            ${{ runner.temp }}/npm-cache/_logs/*-eresolve-report.txt
+            ${{ runner.temp }}/npm-cache/_logs/*-debug-*.log
           if-no-files-found: ignore
