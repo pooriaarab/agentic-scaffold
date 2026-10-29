@@ -27,13 +27,20 @@ let jsonOut = null;
 const names = [];
 for (let i = 0; i < args.length; i++) {
   if (args[i] === "--json") {
+    if (jsonOut) {
+      console.error("--json given twice");
+      process.exit(2);
+    }
     jsonOut = args[++i];
     if (!jsonOut || jsonOut.startsWith("-")) {
       console.error("--json needs a file path");
       process.exit(2);
     }
   }
-  else names.push(args[i]);
+  else if (args[i].startsWith("-")) {
+    console.error(`Unknown option: ${args[i]}`);
+    process.exit(2);
+  } else names.push(args[i]);
 }
 const pkgs = names.length ? names : ALL;
 const unknown = pkgs.filter((n) => !ALL.includes(n));
@@ -49,7 +56,7 @@ function run(cmd, argv, cwd, timeout = 60000) {
   return { ok: r.status === 0 && !r.error, out, timedOut: r.error?.code === "ETIMEDOUT" };
 }
 const versionResult = (r, version) =>
-  r.ok && !new RegExp(`(^|[^\\d.])${version.replace(/\./g, "\\.")}($|[^\\d.])`).test(r.out) ? { ok: false, out: `printed "${r.out.slice(0, 80)}", expected ${version}` } : r;
+  r.ok && !new RegExp(`(^|[^\\d.])${version.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^\\d.])`).test(r.out) ? { ok: false, out: `printed "${r.out.slice(0, 80)}", expected ${version}` } : r;
 const tail = (s) => s.split("\n").slice(-3).join(" | ").slice(0, 200);
 
 function smoke(pkg) {
@@ -64,7 +71,7 @@ function smoke(pkg) {
     // A release can be a few minutes old and not yet visible on every mirror: retry.
     let inst;
     for (let n = 0; n < 4; n++) {
-      inst = run("npm", ["install", `${pkg}@latest`, "--no-audit", "--no-fund"], dir, 240000);
+      inst = run("npm", ["install", `${pkg}@latest`, "--no-audit", "--no-fund"], dir, 120000);
       if (inst.ok || !/ETARGET|notarget/.test(inst.out) || n === 3) break;
       spawnSync("sleep", ["30"]);
     }
@@ -99,7 +106,7 @@ function smoke(pkg) {
     const exp = meta.exports && typeof meta.exports === "object" ? meta.exports : {};
     const want = SDK_SUBPATHS[pkg];
     const subs = want ? [`./${want}`] : [];
-    const targets = [pkg, ...subs.map((s) => `${pkg}/${s.slice(2)}`)];
+    const targets = subs.map((s) => `${pkg}/${s.slice(2)}`);
     const src = `const t=${JSON.stringify(targets)};let bad=0;for(const n of t){try{const m=await import(n);const k=Object.keys(m);if(!k.length)throw new Error("no exports");console.log(n,k.length+" exports")}catch(e){bad++;console.error(n,String(e.message).split("\\n")[0])}}process.exit(bad?1:0)`;
     writeFileSync(join(dir, "imp.mjs"), src);
     check("import-main", run("node", ["-e", `import(${JSON.stringify(pkg)}).then(m=>{if(!Object.keys(m).length)throw new Error("no exports")}).catch(e=>{console.error(String(e.message).split("\\n")[0]);process.exit(1)})`, "--input-type=module"], dir));

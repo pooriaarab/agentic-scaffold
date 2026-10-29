@@ -29,7 +29,7 @@ jobs:
           PACKAGES: ${{ inputs.packages }}
         run: |
           set -f
-          if ! printf '%s' "$PACKAGES" | grep -Eq '^[a-z0-9 -]*$' || printf '%s' "$PACKAGES" | grep -Eq '(^| )-'; then
+          if [[ ! "$PACKAGES" =~ ^[a-z0-9\ -]*$ ]] || [[ "$PACKAGES" =~ (^|\ )- ]]; then
             echo "packages must be package names" >&2
             exit 2
           fi
