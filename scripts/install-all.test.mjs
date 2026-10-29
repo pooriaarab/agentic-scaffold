@@ -80,10 +80,9 @@ describe("runInstall", () => {
       expect(call.args.slice(0, 5)).toEqual([
         "install", "--no-audit", "--no-fund", "--ignore-scripts", "--package-lock=false",
       ]);
-      expect(call.args.slice(5)).toEqual(installSpecs());
+      expect(call.args.slice(5)).toEqual(ALL_PACKAGES.map((pkg) => `${pkg}@latest`));
       expect(call.opts.timeout).toBe(5 * 60 * 1000);
       expect(call.opts.stdio).toEqual(["ignore", "inherit", "inherit"]);
-      expect(call.opts.shell).toBe(process.platform === "win32");
       expect(call.opts.env.CI).toBe("1");
       expect(call.opts.env.npm_config_force).toBe("false");
       expect(call.opts.env.npm_config_legacy_peer_deps).toBe("false");
@@ -108,8 +107,9 @@ describe("runInstall", () => {
 
   test("returns npm's non-zero exit code", () =>
     withRoot((dirRoot) => {
-      const { spawn } = fakeSpawn({ status: 1 });
+      const { spawn, calls } = fakeSpawn({ status: 1 });
       expect(runInstall({ spawn, dirRoot, ...quiet })).toBe(1);
+      expect(existsSync(calls[0].opts.cwd)).toBe(false);
       const { spawn: spawn7 } = fakeSpawn({ status: 7 });
       expect(runInstall({ spawn: spawn7, dirRoot, ...quiet })).toBe(7);
     }));

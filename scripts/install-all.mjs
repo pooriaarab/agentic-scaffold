@@ -91,9 +91,15 @@ export function runInstall({
 
 // Run only when executed directly, so the unit tests can import the helpers.
 // realpath on both sides: import.meta.url has symlinks resolved, argv[1] does not.
-if (
-  process.argv[1] &&
-  realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])
-) {
+function isMainModule() {
+  try {
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]);
+  } catch {
+    // argv[1] is missing or not a file (for example, node -e): not the main module.
+    return false;
+  }
+}
+
+if (isMainModule()) {
   process.exitCode = runInstall();
 }

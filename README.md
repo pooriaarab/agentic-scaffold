@@ -67,7 +67,7 @@ The `npm-smoke` workflow runs it every day and on demand. The table goes to the 
 npm run install-all
 ```
 
-The `install-all` workflow runs it every day and on demand. When it fails, the workflow uploads npm's ERESOLVE report as an artifact. This check is not a pull request gate. The workflow can stay red while a maintainer fixes another package. Pull request CI does not run the live install. It runs the script's unit tests as part of `npm test`.
+The `install-all` workflow runs it every day and on demand. When it fails, the workflow uploads npm's ERESOLVE report as an artifact. This check is not a pull request gate. A failure can come from another package's release, so it does not block PRs here. Pull request CI does not run the live install. It runs the script's unit tests as part of `npm test`.
 
 ## Limits
 
