@@ -1,0 +1,44 @@
+name: npm-smoke
+
+on:
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: "Space-separated package names (empty means all)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    env:
+      WRANGLER_SEND_METRICS: "false"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install each package from npm and exercise it
+        env:
+          PACKAGES: ${{ inputs.packages }}
+        run: |
+          set -f
+          if [[ ! "$PACKAGES" =~ ^[a-z0-9\ -]*$ ]] || [[ "$PACKAGES" =~ (^|\ )- ]]; then
+            echo "packages must be package names" >&2
+            exit 2
+          fi
+          node scripts/npm-smoke.mjs --json "$RUNNER_TEMP/npm-smoke.json" $PACKAGES
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: npm-smoke-results
+          path: ${{ runner.temp }}/npm-smoke.json
+          if-no-files-found: ignore

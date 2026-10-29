@@ -48,6 +48,17 @@ Start MCP with `npx agentic-scaffold mcp`. Preview routing with `npx agentic-sca
 
 `POST /summarize` is gone. Use `POST /api/v1/summarize`. It needs `Authorization: Bearer <key>` and a principal with the `text:read` scope. A missing or bad key gets 401. A key without the scope gets 403. Set the `AUTH_TOKENS` secret to a JSON object of bearer token (32 bytes or more) to `kind:name`, or to `{ "as": "kind:name", "scopes": ["text:read"] }`. A bad entry refuses the whole table. If `AUTH_TOKENS` is missing, the route answers 503. `GET /health` stays open.
 
+## Smoke test of the published packages
+
+`scripts/npm-smoke.mjs` installs each published suite package from npm in a clean temp dir. It runs the CLI and MCP `--help` and `--version`, and imports the main export and the SDK client in Node 22. It prints a pass/fail table and exits 1 on any failure.
+
+```sh
+node scripts/npm-smoke.mjs                      # all packages
+node scripts/npm-smoke.mjs agentic-link         # one package
+```
+
+The `npm-smoke` workflow runs it every day and on demand. The table goes to the job summary.
+
 ## Limits
 
 This starter has zero vendor-specific integrations. Local dispatch creates a receipt without external delivery.
