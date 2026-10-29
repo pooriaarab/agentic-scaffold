@@ -6,14 +6,20 @@ All notable changes to this package are in this file. The format follows
 
 ## 0.1.3 - 2026-10-29
 
+### Removed
+
+- The Worker route `POST /summarize` is gone. Use `POST /api/v1/summarize` instead.
+  The new route needs a bearer key. See the migration section in the
+  [README](README.md#migration-worker-auth).
+
 ### Security
 
 - The `zod` dependency is `^4.6.7`. zod 3.25.76 was below the fixed version for
   GHSA-mrhx-c7xc-m3w5, which allows memory exhaustion when validating oversized
   constrained collections. The package API is unchanged.
 - `POST /api/v1/summarize` requires a bearer key with the `text:read` scope. A missing
-  key gets 401, a missing scope gets 403, and a Worker with no Auth gets 503. Before,
-  the route had no auth.
+  key gets 401, a missing scope gets 403, and a Worker with no `AUTH_TOKENS` secret gets
+  503. Before, the route had no auth.
 
 ### Fixed
 
