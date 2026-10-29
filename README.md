@@ -40,9 +40,13 @@ console.log(getCostReport()); // { entries: [], dispatches: 0, units: 0 }
 - **Utilities:** Brand configuration, stderr logging, dry-run results, and in-memory cost units.
 - **CLI:** `summary`, `dispatch`, `costs`, `mcp`; help via `--help` and version via `--version`.
 - **MCP:** Three tools: `summarize_text`, `dispatch_text`, `get_cost_report`.
-- **Worker scaffold:** Source handler for `GET /health` and `POST /summarize`; users deploy it themselves.
+- **Worker scaffold:** Source handler for `GET /health` (open) and `POST /api/v1/summarize` (needs a bearer key with the `text:read` scope); users deploy it themselves.
 
 Start MCP with `npx agentic-scaffold mcp`. Preview routing with `npx agentic-scaffold dispatch --text hello --dry-run`.
+
+## Migration: Worker auth
+
+`POST /summarize` is gone. Use `POST /api/v1/summarize`. It needs `Authorization: Bearer <key>` and a principal with the `text:read` scope. A missing or bad key gets 401. A key without the scope gets 403. If the Worker has no `AUTH` binding (an `Auth` port from `agentic-identity`), the route answers 503. `GET /health` stays open.
 
 ## Limits
 
