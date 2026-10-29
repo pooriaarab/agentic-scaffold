@@ -12,7 +12,6 @@ jobs:
   install-all:
     env:
       WRANGLER_SEND_METRICS: "false"
-      npm_config_cache: ${{ runner.temp }}/npm-cache
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -23,6 +22,8 @@ jobs:
         with:
           node-version: "22"
       - name: Install all latest packages together
+        env:
+          npm_config_cache: ${{ runner.temp }}/npm-cache
         run: npm run install-all
       - uses: actions/upload-artifact@v4
         if: failure()
