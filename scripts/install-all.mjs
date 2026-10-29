@@ -46,18 +46,13 @@ function installAll(dir) {
     {
       cwd: dir,
       env,
-      encoding: "utf8",
-      maxBuffer: 20 * 1024 * 1024,
-      stdio: ["ignore", "pipe", "pipe"],
+      stdio: ["ignore", "inherit", "inherit"],
       // npm is npm.cmd on Windows, and Node refuses to spawn .cmd without a shell.
       // The args are fixed strings built from the static package list.
       shell: process.platform === "win32",
       timeout: TIMEOUT_MS,
     },
   );
-
-  if (result.stdout) process.stdout.write(result.stdout);
-  if (result.stderr) process.stderr.write(result.stderr);
 
   if (result.error) {
     console.error(`install-all failed to run npm: ${result.error.message}`);
