@@ -65,7 +65,8 @@ export function runInstall({
         env: installEnv(),
         stdio: ["ignore", "inherit", "inherit"],
         // npm is npm.cmd on Windows, and Node refuses to spawn .cmd without a shell.
-        // The args are fixed strings built from the static package list.
+        // The CLI passes the static package list. A caller that passes `packages`
+        // must pass plain package names, because the shell reads them on Windows.
         shell: process.platform === "win32",
         timeout: TIMEOUT_MS,
       },
