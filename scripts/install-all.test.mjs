@@ -157,19 +157,20 @@ describe("runInstall", () => {
     }));
 });
 
-// End to end: the real CLI, with a fake npm first on PATH that exits 3.
-// The symlink case guards the main-module check: it must still run.
+// End to end: the real CLI, with a fake npm first on PATH that exits with
+// `npmExit`. The symlink case guards the main-module check: it must still run.
 describe.skipIf(process.platform === "win32")("CLI entry", () => {
   test.each([
-    ["directly", false],
-    ["through a symlink", true],
-  ])("runs npm and exits with its code when run %s", (_label, viaLink) =>
+    ["directly", false, 3],
+    ["through a symlink", true, 3],
+    ["directly when npm succeeds", false, 0],
+  ])("runs npm and exits with its code when run %s", (_label, viaLink, npmExit) =>
     withRoot((root) => {
       const bin = join(root, "bin");
       const tmp = join(root, "tmp");
       mkdirSync(bin);
       mkdirSync(tmp);
-      writeFileSync(join(bin, "npm"), "#!/bin/sh\nexit 3\n");
+      writeFileSync(join(bin, "npm"), `#!/bin/sh\nexit ${npmExit}\n`);
       chmodSync(join(bin, "npm"), 0o755);
 
       let script = SCRIPT;
@@ -182,7 +183,7 @@ describe.skipIf(process.platform === "win32")("CLI entry", () => {
         encoding: "utf8",
         env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, TMPDIR: tmp },
       });
-      expect(r.status).toBe(3);
+      expect(r.status).toBe(npmExit);
       expect(readdirSync(tmp)).toEqual([]);
     }));
 });
