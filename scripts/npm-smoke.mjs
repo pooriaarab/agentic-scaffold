@@ -43,7 +43,7 @@ function run(cmd, argv, cwd, timeout = 60000) {
   return { ok: r.status === 0 && !r.error, out, timedOut: r.error?.code === "ETIMEDOUT" };
 }
 const versionResult = (r, version) =>
-  r.ok && !r.out.includes(version) ? { ok: false, out: `printed "${r.out.slice(0, 80)}", expected ${version}` } : r;
+  r.ok && !new RegExp(`(^|[^\\d.])${version.replace(/\./g, "\\.")}($|[^\\d.])`).test(r.out) ? { ok: false, out: `printed "${r.out.slice(0, 80)}", expected ${version}` } : r;
 const tail = (s) => s.split("\n").slice(-3).join(" | ").slice(0, 200);
 
 function smoke(pkg) {
@@ -86,10 +86,10 @@ function smoke(pkg) {
       const [c, ...a] = mcpCmd(flag);
       const r = run(c, a, dir, 20000);
       if (label === "mcp-version") check(label, versionResult(r, meta.version));
-      else check(label, r.ok && !r.out ? { ok: false, out: "no output" } : r);
+      else check(label, r.ok && !/usage|--help/i.test(r.out) ? { ok: false, out: `no help text: "${r.out.slice(0, 80)}"` } : r);
     }
     // Imports in Node 22 ESM: main export and the SDK client subpath.
-    const exp = meta.exports ?? {};
+    const exp = meta.exports && typeof meta.exports === "object" ? meta.exports : {};
     const want = SDK_SUBPATHS[pkg];
     const subs = want ? [`./${want}`] : [];
     const targets = [pkg, ...subs.map((s) => `${pkg}/${s.slice(2)}`)];
@@ -114,11 +114,11 @@ const results = pkgs.map((p) => {
   return r;
 });
 const cols = ["install", "cli-help", "cli-version", "mcp-help", "mcp-version", "import-main", "import-sdk"];
-const mark = (v) => (v === null || v === undefined ? "n/a" : v ? "pass" : "FAIL");
+const mark = (v, r) => (v === null ? "n/a" : v === undefined ? (r.errors.length ? "skip" : "n/a") : v ? "pass" : "FAIL");
 const lines = [
   `| package | version | ${cols.join(" | ")} |`,
   `| --- | --- | ${cols.map(() => "---").join(" | ")} |`,
-  ...results.map((r) => `| ${r.pkg} | ${r.version || "-"} | ${cols.map((c) => mark(r.checks[c])).join(" | ")} |`),
+  ...results.map((r) => `| ${r.pkg} | ${r.version || "-"} | ${cols.map((c) => mark(r.checks[c], r)).join(" | ")} |`),
 ];
 const failed = results.filter((r) => r.errors.length);
 let md = lines.join("\n") + "\n";
