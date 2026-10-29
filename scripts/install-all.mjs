@@ -41,7 +41,7 @@ function installAll(dir) {
   console.log(`npm install ${specs.join(" ")}`);
 
   const result = spawnSync(
-    process.platform === "win32" ? "npm.cmd" : "npm",
+    "npm",
     ["install", "--no-audit", "--no-fund", "--ignore-scripts", "--package-lock=false", ...specs],
     {
       cwd: dir,
@@ -49,6 +49,9 @@ function installAll(dir) {
       encoding: "utf8",
       maxBuffer: 20 * 1024 * 1024,
       stdio: ["ignore", "pipe", "pipe"],
+      // npm is npm.cmd on Windows, and Node refuses to spawn .cmd without a shell.
+      // The args are fixed strings built from the static package list.
+      shell: process.platform === "win32",
       timeout: TIMEOUT_MS,
     },
   );
