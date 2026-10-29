@@ -46,7 +46,7 @@ Start MCP with `npx agentic-scaffold mcp`. Preview routing with `npx agentic-sca
 
 ## Migration: Worker auth
 
-`POST /summarize` is gone. Use `POST /api/v1/summarize`. It needs `Authorization: Bearer <key>` and a principal with the `text:read` scope. A missing or bad key gets 401. A key without the scope gets 403. If the Worker has no `AUTH` binding (an `Auth` port from `agentic-identity`), the route answers 503. `GET /health` stays open.
+`POST /summarize` is gone. Use `POST /api/v1/summarize`. It needs `Authorization: Bearer <key>` and a principal with the `text:read` scope. A missing or bad key gets 401. A key without the scope gets 403. Set the `AUTH_TOKENS` secret to a JSON object of bearer token (32 bytes or more) to `kind:name`, or to `{ "as": "kind:name", "scopes": ["text:read"] }`. A bad entry refuses the whole table. If `AUTH_TOKENS` is missing, the route answers 503. `GET /health` stays open.
 
 ## Limits
 
