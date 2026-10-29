@@ -1,9 +1,15 @@
+import type { Auth } from "agentic-identity";
+import { requirePrincipal } from "agentic-identity/http";
 import { summarizeText } from "./core.js";
 import { VERSION } from "./version.js";
 
 export interface WorkerEnv {
   PACK_NAME?: string;
+  /** The Auth port that checks each request. Without it, protected routes answer 503. */
+  AUTH?: Auth;
 }
+
+export const SUMMARIZE_SCOPE = "text:read";
 
 function json(value: unknown, status = 200): Response {
   return new Response(JSON.stringify(value), {
@@ -18,7 +24,14 @@ export default {
     if (request.method === "GET" && url.pathname === "/health") {
       return json({ ok: true, pack: env.PACK_NAME ?? "agentic-pack", version: VERSION });
     }
-    if (request.method === "POST" && url.pathname === "/summarize") {
+    if (request.method === "POST" && url.pathname === "/api/v1/summarize") {
+      if (!env.AUTH) {
+        return json({ error: "auth is not configured" }, 503);
+      }
+      const principal = await requirePrincipal(request, env.AUTH, { scope: SUMMARIZE_SCOPE });
+      if (principal instanceof Response) {
+        return principal;
+      }
       let body: unknown;
       try {
         body = await request.json();
