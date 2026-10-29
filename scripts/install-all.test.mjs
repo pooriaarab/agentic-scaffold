@@ -115,8 +115,9 @@ describe("runInstall", () => {
       const { spawn, calls } = fakeSpawn({ status: 1 });
       expect(runInstall({ spawn, dirRoot, ...quiet })).toBe(1);
       expect(existsSync(calls[0].opts.cwd)).toBe(false);
-      const { spawn: spawn7 } = fakeSpawn({ status: 7 });
+      const { spawn: spawn7, calls: calls7 } = fakeSpawn({ status: 7 });
       expect(runInstall({ spawn: spawn7, dirRoot, ...quiet })).toBe(7);
+      expect(existsSync(calls7[0].opts.cwd)).toBe(false);
     }));
 
   test("treats a signal kill (null status) as a failure", () =>
