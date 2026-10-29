@@ -61,7 +61,7 @@ The `npm-smoke` workflow runs it every day and on demand. The table goes to the 
 
 ## Install check of all packages together
 
-`scripts/install-all.mjs` runs `npm install` for all 18 `agentic-*` packages at latest, in one clean temp dir. It catches peer conflicts between them. A direct conflict between two of the packages fails with npm's ERESOLVE output and exit code 1. A conflict deeper in the tree only logs a warning.
+`scripts/install-all.mjs` runs `npm install` for every `agentic-*` package listed in `scripts/agentic-packages.mjs`, at latest, in one clean temp dir. It catches peer conflicts between them. A direct conflict between two of the packages fails with npm's ERESOLVE output and exit code 1. A conflict deeper in the tree only logs a warning.
 
 ```sh
 npm run install-all

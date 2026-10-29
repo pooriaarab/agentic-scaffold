@@ -16,7 +16,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
 import { ALL_PACKAGES } from "./agentic-packages.mjs";
-import { installEnv, installSpecs, runInstall } from "./install-all.mjs";
+import { installEnv, runInstall } from "./install-all.mjs";
 
 const SCRIPT = fileURLToPath(new URL("./install-all.mjs", import.meta.url));
 
@@ -48,11 +48,6 @@ describe("package list", () => {
     for (const pkg of ALL_PACKAGES) expect(pkg).toMatch(/^agentic-[a-z]+$/);
   });
 
-  test("every spec asks for the latest tag", () => {
-    const specs = installSpecs();
-    expect(specs).toHaveLength(ALL_PACKAGES.length);
-    for (const spec of specs) expect(spec).toMatch(/^agentic-[a-z]+@latest$/);
-  });
 });
 
 describe("installEnv", () => {

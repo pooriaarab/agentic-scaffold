@@ -37,8 +37,8 @@ export function installEnv(base = process.env) {
   };
 }
 
-// Run the install in a new temp dir and return the exit code. `spawn` and
-// `dirRoot` are injected by the unit tests; the CLI uses the real ones.
+// Run the install in a new temp dir and return the exit code. The unit tests
+// inject `packages`, `spawn`, `dirRoot`, `log`, and `err`; the CLI uses the defaults.
 export function runInstall({
   packages = PACKAGES,
   spawn = spawnSync,
