@@ -11,10 +11,10 @@
 // not run `finally` here, because spawnSync blocks the event loop and signal
 // handlers cannot run. CI runners are ephemeral, so a leftover dir is harmless.
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 import { ALL_PACKAGES as PACKAGES } from "./agentic-packages.mjs";
 
 const TIMEOUT_MS = 5 * 60 * 1000;
@@ -90,6 +90,10 @@ export function runInstall({
 }
 
 // Run only when executed directly, so the unit tests can import the helpers.
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+// realpath on both sides: import.meta.url has symlinks resolved, argv[1] does not.
+if (
+  process.argv[1] &&
+  realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])
+) {
   process.exitCode = runInstall();
 }

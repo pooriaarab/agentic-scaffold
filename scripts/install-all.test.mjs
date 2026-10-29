@@ -6,12 +6,19 @@
 // - a spec is missing "@latest", so npm skips the latest tags
 // - an npm exit code, a signal kill, a timeout, or a spawn error is reported as success
 // - the temp dir is left behind on success or on failure
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import {
+  chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync,
+  rmSync, symlinkSync, writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
 import { ALL_PACKAGES } from "./agentic-packages.mjs";
 import { installEnv, installSpecs, runInstall } from "./install-all.mjs";
+
+const SCRIPT = fileURLToPath(new URL("./install-all.mjs", import.meta.url));
 
 // Build a fake spawnSync that records the call and returns `result`.
 function fakeSpawn(result) {
@@ -75,6 +82,12 @@ describe("runInstall", () => {
       ]);
       expect(call.args.slice(5)).toEqual(installSpecs());
       expect(call.opts.timeout).toBe(5 * 60 * 1000);
+      expect(call.opts.stdio).toEqual(["ignore", "inherit", "inherit"]);
+      expect(call.opts.shell).toBe(process.platform === "win32");
+      expect(call.opts.env.CI).toBe("1");
+      expect(call.opts.env.npm_config_force).toBe("false");
+      expect(call.opts.env.npm_config_legacy_peer_deps).toBe("false");
+      expect(call.opts.env.npm_config_update_notifier).toBe("false");
     }));
 
   test("runs in a new temp dir under the given root", () =>
@@ -141,5 +154,35 @@ describe("runInstall", () => {
       };
       runInstall({ spawn, dirRoot, ...quiet });
       expect(manifest).toEqual({ name: "agentic-install-all", private: true });
+    }));
+});
+
+// End to end: the real CLI, with a fake npm first on PATH that exits 3.
+// The symlink case guards the main-module check: it must still run.
+describe.skipIf(process.platform === "win32")("CLI entry", () => {
+  test.each([
+    ["directly", false],
+    ["through a symlink", true],
+  ])("runs npm and exits with its code when run %s", (_label, viaLink) =>
+    withRoot((root) => {
+      const bin = join(root, "bin");
+      const tmp = join(root, "tmp");
+      mkdirSync(bin);
+      mkdirSync(tmp);
+      writeFileSync(join(bin, "npm"), "#!/bin/sh\nexit 3\n");
+      chmodSync(join(bin, "npm"), 0o755);
+
+      let script = SCRIPT;
+      if (viaLink) {
+        script = join(root, "link.mjs");
+        symlinkSync(SCRIPT, script);
+      }
+
+      const r = spawnSync(process.execPath, [script], {
+        encoding: "utf8",
+        env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, TMPDIR: tmp },
+      });
+      expect(r.status).toBe(3);
+      expect(readdirSync(tmp)).toEqual([]);
     }));
 });
