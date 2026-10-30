@@ -67,11 +67,25 @@ The `npm-smoke` workflow runs it every day and on demand. The table goes to the 
 npm run install-all
 ```
 
-The `install-all` workflow runs it every day and on demand. When it fails, the workflow uploads npm's logs, including any ERESOLVE report. This check is not a pull request gate. A failure can come from another package's release, so it does not block PRs here. Pull request CI does not run the live install. It runs the script's unit tests as part of `npm test`.
+The `install-all` workflow runs it on each main branch push, every day, and on demand. When it fails, the workflow uploads npm's logs, including any ERESOLVE report. This check is not a pull request gate. A failure can come from another package's release, so it does not block PRs here. Pull request CI does not run the live install. It runs the script's unit tests as part of `npm test`.
 
 ### Last recorded run (2026-10-30)
 
-A local `npm run install-all` with npm 10.9.9 failed with ERESOLVE and exit code 1 ([output in PR #30](https://github.com/pooriaarab/agentic-scaffold/pull/30)). `agentic-assistant@0.7.2` requires the optional peer `agentic-design@>=0.5.0 <0.9.0`, but the install selected `agentic-design@0.9.0`. Both packages are in the install list, so this is a direct conflict. Nested peer conflicts only warn and do not fail the check. See the [daily install-all workflow](https://github.com/pooriaarab/agentic-scaffold/actions/workflows/install-all.yml) for the latest result.
+On 2026-10-30, `npm run install-all` passed with Node 22.23.4 and npm 10.9.9. It installed 261 packages without `--force` or `--legacy-peer-deps`. A second clean install resolved these top-level releases:
+
+| Package | Version | Package | Version |
+| --- | --- | --- | --- |
+| agentic-identity | 0.10.0 | agentic-realtime | 0.5.0 |
+| agentic-documents | 0.12.1 | agentic-spreadsheet | 0.14.0 |
+| agentic-slides | 0.13.3 | agentic-drive | 0.10.1 |
+| agentic-tables | 0.14.0 | agentic-tasks | 0.11.2 |
+| agentic-forms | 0.11.1 | agentic-canvas | 0.14.3 |
+| agentic-formats | 0.4.3 | agentic-design | 0.9.0 |
+| agentic-assistant | 0.7.4 | agentic-comments | 0.8.4 |
+| agentic-link | 0.5.0 | agentic-notify | 0.6.2 |
+| agentic-search | 0.7.1 | agentic-scaffold | 0.1.5 |
+
+The earlier `agentic-assistant@0.7.2` peer range excluded `agentic-design@0.9.0` ([output in PR #30](https://github.com/pooriaarab/agentic-scaffold/pull/30)). The latest assistant release accepts it. Nested peer conflicts only warn and do not fail the check. See the [install-all workflow](https://github.com/pooriaarab/agentic-scaffold/actions/workflows/install-all.yml) for the latest result.
 
 ## Limits
 
