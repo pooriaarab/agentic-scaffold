@@ -80,6 +80,8 @@ describe("runInstall", () => {
       expect(calls).toHaveLength(2);
       const [call] = calls;
       expect(calls[1].args).toEqual(["list", "--depth=0"]);
+      expect(calls[1].opts.cwd).toBe(call.opts.cwd);
+      expect(calls[1].opts.env.npm_config_legacy_peer_deps).toBe("false");
       expect(call.cmd).toBe("npm");
       expect(call.args.slice(0, 5)).toEqual([
         "install", "--no-audit", "--no-fund", "--ignore-scripts", "--package-lock=false",
@@ -100,6 +102,15 @@ describe("runInstall", () => {
       let count = 0;
       const spawn = () => ({ status: ++count === 1 ? 0 : 1 });
       expect(runInstall({ spawn, dirRoot, ...quiet })).toBe(1);
+    }));
+
+  test("maps a version listing timeout to exit code 124", () =>
+    withRoot((dirRoot) => {
+      let count = 0;
+      const spawn = () => ++count === 1
+        ? { status: 0 }
+        : { error: Object.assign(new Error("timeout"), { code: "ETIMEDOUT" }) };
+      expect(runInstall({ spawn, dirRoot, ...quiet })).toBe(124);
     }));
 
   test("runs in a new temp dir under the given root", () =>
