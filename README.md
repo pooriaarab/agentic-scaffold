@@ -69,6 +69,22 @@ npm run install-all
 
 The `install-all` workflow runs it every day and on demand. When it fails, the workflow uploads npm's logs, including any ERESOLVE report. This check is not a pull request gate. A failure can come from another package's release, so it does not block PRs here. Pull request CI does not run the live install. It runs the script's unit tests as part of `npm test`.
 
+### Install check status
+
+On 2026-10-30, `npm run install-all` passed with these latest versions:
+
+| Package | Version | Package | Version |
+| --- | --- | --- | --- |
+| agentic-identity | 0.10.0 | agentic-realtime | 0.4.4 |
+| agentic-documents | 0.12.1 | agentic-spreadsheet | 0.13.0 |
+| agentic-slides | 0.13.2 | agentic-drive | 0.9.1 |
+| agentic-tables | 0.13.1 | agentic-tasks | 0.11.1 |
+| agentic-forms | 0.11.1 | agentic-canvas | 0.14.1 |
+| agentic-formats | 0.4.3 | agentic-design | 0.9.0 |
+| agentic-assistant | 0.7.2 | agentic-comments | 0.8.4 |
+| agentic-link | 0.4.0 | agentic-notify | 0.6.1 |
+| agentic-search | 0.6.3 | agentic-scaffold | 0.1.5 |
+
 ## Limits
 
 This starter has zero vendor-specific integrations. Local dispatch creates a receipt without external delivery.
