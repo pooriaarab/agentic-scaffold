@@ -71,7 +71,7 @@ The `install-all` workflow runs it every day and on demand. When it fails, the w
 
 ### Last recorded run (2026-10-30)
 
-`npm run install-all` failed with ERESOLVE. `agentic-assistant@0.7.2` requires the optional peer `agentic-design@>=0.5.0 <0.9.0`, but the install selected `agentic-design@0.9.0`. The check fails on direct ERESOLVE conflicts; it does not check nested peer warnings. See the [daily install-all workflow](https://github.com/pooriaarab/agentic-scaffold/actions/workflows/install-all.yml) for the latest result.
+A local `npm run install-all` failed with ERESOLVE ([run output](https://github.com/pooriaarab/agentic-scaffold/pull/30)). `agentic-assistant@0.7.2` requires the optional peer `agentic-design@>=0.5.0 <0.9.0`, but the install selected `agentic-design@0.9.0`. The check fails on direct ERESOLVE conflicts; it does not fail on nested peer warnings. See the [daily install-all workflow](https://github.com/pooriaarab/agentic-scaffold/actions/workflows/install-all.yml) for the latest result.
 
 ## Limits
 
