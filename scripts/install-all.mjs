@@ -83,6 +83,19 @@ export function runInstall({
       return result.status ?? 1;
     }
 
+    log("Installed top-level versions:");
+    const versions = spawn("npm", ["list", "--depth=0"], {
+      cwd: dir,
+      env: installEnv(),
+      stdio: ["ignore", "inherit", "inherit"],
+      shell: process.platform === "win32",
+      timeout: TIMEOUT_MS,
+    });
+    if (versions.error || versions.status !== 0) {
+      err(`install-all could not list installed versions: ${versions.error?.message ?? `npm exit code ${versions.status}`}`);
+      return versions.error?.code === "ETIMEDOUT" ? TIMEOUT_EXIT : versions.status || 1;
+    }
+
     log("install-all resolved all latest packages together.");
     return 0;
   } finally {

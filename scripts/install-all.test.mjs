@@ -73,12 +73,13 @@ describe("runInstall", () => {
       expect(calls[0].args.slice(5)).toEqual(["agentic-a@latest", "agentic-b@latest"]);
     }));
 
-  test("returns 0 and runs one npm install with every latest spec", () =>
+  test("returns 0 after install and version listing", () =>
     withRoot((dirRoot) => {
       const { spawn, calls } = fakeSpawn({ status: 0 });
       expect(runInstall({ spawn, dirRoot, ...quiet })).toBe(0);
-      expect(calls).toHaveLength(1);
+      expect(calls).toHaveLength(2);
       const [call] = calls;
+      expect(calls[1].args).toEqual(["list", "--depth=0"]);
       expect(call.cmd).toBe("npm");
       expect(call.args.slice(0, 5)).toEqual([
         "install", "--no-audit", "--no-fund", "--ignore-scripts", "--package-lock=false",
@@ -92,6 +93,13 @@ describe("runInstall", () => {
       expect(call.opts.env.npm_config_force).toBe("false");
       expect(call.opts.env.npm_config_legacy_peer_deps).toBe("false");
       expect(call.opts.env.npm_config_update_notifier).toBe("false");
+    }));
+
+  test("fails if installed versions cannot be listed", () =>
+    withRoot((dirRoot) => {
+      let count = 0;
+      const spawn = () => ({ status: ++count === 1 ? 0 : 1 });
+      expect(runInstall({ spawn, dirRoot, ...quiet })).toBe(1);
     }));
 
   test("runs in a new temp dir under the given root", () =>
