@@ -4,6 +4,14 @@ All notable changes to this package are in this file. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the package uses
 [Semantic Versioning](https://semver.org/).
 
+## 0.1.6 - 2026-10-30
+
+### Fixed
+
+- CLI and MCP help name the scaffold package and their actual bins. The CLI
+  usage error hint also names the correct bin.
+- Document MCP argument handling and the stdio server wait separately.
+
 ## 0.1.5 - 2026-10-29
 
 ### Changed

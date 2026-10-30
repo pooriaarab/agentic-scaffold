@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import { startMcp } from "./mcp.js";
-import { DEFAULT_BRAND } from "./index.js";
 import { VERSION } from "./version.js";
 
 // The `mcp` word may come first, as the package CLI takes it: `agentic-scaffold-mcp mcp --help`.
@@ -10,7 +9,7 @@ const args = argv[0] === "mcp" ? argv.slice(1) : argv;
 const flag = args[0];
 
 if (flag === "--help" || flag === "-h") {
-  console.log(`${DEFAULT_BRAND.name} ${VERSION}\nUsage: agentic-scaffold-mcp [mcp] [--help | --version]\nStarts the MCP server on stdio.`);
+  console.log(`agentic-scaffold ${VERSION}\nUsage: agentic-scaffold-mcp [mcp] [--help | --version]\nStarts the MCP server on stdio.`);
   process.exit(0);
 }
 if (flag === "--version" || flag === "-V") {

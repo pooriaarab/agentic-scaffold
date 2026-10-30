@@ -44,6 +44,27 @@ console.log(getCostReport()); // { entries: [], dispatches: 0, units: 0 }
 
 Start MCP with `npx agentic-scaffold mcp`. Preview routing with `npx agentic-scaffold dispatch --text hello --dry-run`.
 
+## MCP arguments
+
+The main bin starts the server with `agentic-scaffold mcp`. After `mcp`,
+`--help` or `-h` prints CLI help, and `--version` or `-V` prints the
+version. These flags are recognized only in the first position after `mcp`;
+any later arguments are ignored when one of these flags is first. Otherwise,
+the CLI parses the remaining arguments as flags and rejects unknown flags.
+It accepts `--text`, `--file`, and `--top` with values for `mcp` but ignores
+them when it starts the server. `--top` must still be an integer of 0 or more.
+
+The dedicated bin starts the server with `agentic-scaffold-mcp`, with an
+optional first `mcp` argument. It reads only the first argument after that
+optional word. Help and version flags print and exit; any other argument
+starts the server, and later arguments are ignored.
+
+## MCP server behaviour
+
+The server uses stdio and waits for requests until stdin closes. A bare MCP
+command can therefore appear to hang in an interactive terminal. Use a help
+flag to inspect the command without starting the server.
+
 ## Migration: Worker auth
 
 `POST /summarize` is gone. Use `POST /api/v1/summarize`. It needs `Authorization: Bearer <key>` and a principal with the `text:read` scope. A missing or bad key gets 401. A key without the scope gets 403. Set the `AUTH_TOKENS` secret to a JSON object of bearer token (32 bytes or more) to `kind:name`, or to `{ "as": "kind:name", "scopes": ["text:read"] }`. A bad entry refuses the whole table. If `AUTH_TOKENS` is missing, the route answers 503. `GET /health` stays open.
@@ -92,7 +113,7 @@ The earlier `agentic-assistant@0.7.2` peer range excluded `agentic-design@0.9.0`
 This starter has zero vendor-specific integrations. Local dispatch creates a receipt without external delivery.
 CLI and MCP dispatch use the local adapter by default; SDK callers can supply the HTTP adapter.
 HTTP delivery defaults to a ten-second timeout, with no retries. Cost units count text length rather than billing charges.
-Reports reset when the process exits. CLI help and MCP identity still use the starter name `agentic-pack`.
+Reports reset when the process exits. MCP identity still uses the starter name `agentic-pack`.
 
 ## Customize a cloned starter
 
@@ -107,11 +128,13 @@ node dist/cli.js summary --text "hello world hello"
 Replace `__PACK_NAME__`, `__NPM_NAME__`, `__PACK_COMMAND__`, `__PACK_DESCRIPTION__`, `__PACK_KEYWORDS__`, and `__GITHUB_USER__` wherever they appear.
 Check `AGENTS.md`, `SKILL.md`, `RULES.md`, `llms.txt`, `server.json`, `.mcp.json`, and `wrangler.jsonc`.
 Update package identity, bin commands, `mcpName`, and `DEFAULT_BRAND` in `src/index.ts`.
-The MCP bin's usage line in `src/mcp-bin.ts` names `agentic-scaffold-mcp` as text, so rename it there too.
-Set the MCP manifest version and repository ID before publishing your own package.
+Rename the hardcoded package and bin names in `src/cli.ts` help and error
+messages and in `src/mcp-bin.ts` help.
+The MCP manifest is a template and keeps version `0.1.0`. Set its version
+and repository ID before publishing your own package.
 
 The repository includes a shared core contract and a publish workflow. Inspect that workflow before adopting its release process.
-Version 0.1.4 is an early starter release; interfaces can change. See [CHANGELOG.md](CHANGELOG.md).
+Version 0.1.6 is an early starter release; interfaces can change. See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
