@@ -4,6 +4,14 @@ All notable changes to this package are in this file. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the package uses
 [Semantic Versioning](https://semver.org/).
 
+## 0.2.1 - 2026-10-30
+
+### Fixed
+
+- Check installed public entries, CLI output, MCP protocol, and SDK contracts
+  with current shared packages and a packed scaffold release.
+- Save bounded runtime reports and fail on invalid dependency trees.
+
 ## 0.2.0 - 2026-10-30
 
 ### Changed

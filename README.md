@@ -102,15 +102,29 @@ The `npm-smoke` workflow runs it every day and on demand. The table goes to the 
 
 ## Install check of all packages together
 
-`scripts/install-all.mjs` installs every `agentic-*` package listed in `scripts/agentic-packages.mjs` at latest. It runs `npm install` in one clean temp dir. It catches peer conflicts between the packages. A direct conflict between two of the packages fails with npm's ERESOLVE output and exit code 1. A conflict deeper in the tree only logs a warning.
+`scripts/install-all.mjs` installs all packages in `scripts/agentic-packages.mjs`
+at latest in one clean project. It saves exact versions and checks the full
+npm dependency tree. Install errors and invalid peers fail the gate. It does
+not use force or legacy peer resolution.
 
-```sh
+```bash
+npm run build
 npm run install-all
 ```
 
-The `install-all` workflow runs it on each main branch push, every day, and on demand. Each successful run prints the installed top-level versions. When it fails, the workflow uploads npm's logs, including any ERESOLVE report. This check is not a pull request gate. A failure can come from another package's release, so it does not block PRs here. Pull request CI does not run the live install. It runs the script's unit tests as part of `npm test`.
+The gate imports public main and SDK entries. It checks CLI help and version,
+then uses a real MCP client to initialize each server and list its tools.
+Scaffold also checks that MCP and SDK text summaries match and reads session
+costs. Shared identity, design, and realtime contracts run without a service.
+The gate then installs a packed copy of this branch and repeats the checks.
+Companion versions must stay fixed through this step.
 
-### Last recorded run (2026-10-30)
+The workflow runs on pull requests, main pushes, each day, and on demand.
+It keeps `runtime-gate-artifacts/runtime.json` for seven days, including resolved
+versions, shared dependency versions, bounded probe output, and failure details.
+Set `RUNTIME_GATE_ARTIFACTS` to change the report directory. `npm test` also
+installs an incompatible packed fixture and proves the runtime check rejects it.
+A new published package can make this live gate fail.
 
 On 2026-10-30, `npm run install-all` passed with Node 22.23.4 and npm 10.9.9, without `--force` or `--legacy-peer-deps`. It installed 277 packages. The top-level releases were:
 
@@ -126,7 +140,7 @@ On 2026-10-30, `npm run install-all` passed with Node 22.23.4 and npm 10.9.9, wi
 | agentic-link | 0.5.0 | agentic-notify | 0.6.2 |
 | agentic-search | 0.8.1 | agentic-scaffold | 0.1.6 |
 
-Earlier, `agentic-assistant@0.7.4` excluded design 0.10.1, and `agentic-assistant@0.7.2` excluded design 0.9.0 ([output in PR #30](https://github.com/pooriaarab/agentic-scaffold/pull/30)). Nested peer conflicts only warn and do not fail the check. See the [install-all workflow](https://github.com/pooriaarab/agentic-scaffold/actions/workflows/install-all.yml) for the latest result.
+Earlier, `agentic-assistant@0.7.4` excluded design 0.10.1, and `agentic-assistant@0.7.2` excluded design 0.9.0 ([output in PR #30](https://github.com/pooriaarab/agentic-scaffold/pull/30)). The full dependency tree check now rejects invalid nested peers. See the [install-all workflow](https://github.com/pooriaarab/agentic-scaffold/actions/workflows/install-all.yml) for the latest result.
 
 ## Limits
 

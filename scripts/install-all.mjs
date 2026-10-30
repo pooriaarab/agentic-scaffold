@@ -2,10 +2,8 @@
 // Install all published agentic packages together in a clean temp project.
 // This catches peer dependency drift across package latest tags.
 //
-// Peer check scope: strict-peer-deps is off on purpose. A
-// direct conflict between two packages in PACKAGES still fails with ERESOLVE.
-// A conflict deeper in the tree only logs a warning, and the check passes.
-// Turn on strict-peer-deps only as a deliberate choice, with a note here.
+// npm installs without peer overrides. The runtime stage also runs npm ls
+// over the full tree, so invalid nested peers fail even if installation warns.
 //
 // Cleanup: the temp dir is removed in `finally`. Signals (SIGTERM, SIGINT) do
 // not run `finally` here, because spawnSync blocks the event loop and signal
@@ -32,6 +30,7 @@ export function installEnv(base = process.env) {
     npm_config_audit: "false",
     npm_config_force: "false",
     npm_config_fund: "false",
+    npm_config_save_exact: "true",
     npm_config_legacy_peer_deps: "false",
     npm_config_update_notifier: "false",
   };
@@ -96,7 +95,14 @@ export function runInstall({
       return versions.error?.code === "ETIMEDOUT" ? TIMEOUT_EXIT : versions.status || 1;
     }
 
-    log("install-all resolved all latest packages together.");
+    const runtime = spawn(process.execPath, [fileURLToPath(new URL("./runtime-gate.mjs", import.meta.url)), dir, JSON.stringify(packages)], {
+      cwd: process.cwd(), env: installEnv(), stdio: ["ignore", "inherit", "inherit"], timeout: TIMEOUT_MS,
+    });
+    if (runtime.error || runtime.status !== 0) {
+      err(`install-all runtime gate failed: ${runtime.error?.message ?? runtime.status}`);
+      return runtime.error?.code === "ETIMEDOUT" ? TIMEOUT_EXIT : runtime.status || 1;
+    }
+    log("install-all resolved and exercised all latest packages together.");
     return 0;
   } finally {
     rmSync(dir, { recursive: true, force: true });

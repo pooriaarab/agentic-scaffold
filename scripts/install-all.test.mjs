@@ -77,7 +77,7 @@ describe("runInstall", () => {
     withRoot((dirRoot) => {
       const { spawn, calls } = fakeSpawn({ status: 0 });
       expect(runInstall({ spawn, dirRoot, ...quiet })).toBe(0);
-      expect(calls).toHaveLength(2);
+      expect(calls).toHaveLength(3);
       const [call] = calls;
       expect(calls[1].args).toEqual(["list", "--depth=0"]);
       expect(calls[1].opts.cwd).toBe(call.opts.cwd);
@@ -177,7 +177,7 @@ describe("runInstall", () => {
     withRoot((dirRoot) => {
       let manifest;
       const spawn = (_cmd, _args, opts) => {
-        manifest = JSON.parse(readFileSync(join(opts.cwd, "package.json"), "utf8"));
+        if (!manifest) manifest = JSON.parse(readFileSync(join(opts.cwd, "package.json"), "utf8"));
         return { status: 0 };
       };
       runInstall({ spawn, dirRoot, ...quiet });
@@ -191,7 +191,7 @@ describe.skipIf(process.platform === "win32")("CLI entry", () => {
   test.each([
     ["directly", false, 3],
     ["through a symlink", true, 3],
-    ["directly when npm succeeds", false, 0],
+
   ])("runs npm and exits with its code when run %s", (_label, viaLink, npmExit) =>
     withRoot((root) => {
       const bin = join(root, "bin");

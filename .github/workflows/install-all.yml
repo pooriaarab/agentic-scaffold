@@ -5,6 +5,7 @@ on:
     branches: [main]
   schedule:
     - cron: "43 5 * * *"
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -24,15 +25,15 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
+      - run: npm ci && npm run build
       - name: Install all latest packages together
         env:
           npm_config_cache: ${{ runner.temp }}/npm-cache
         run: npm run install-all
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: failure()
+        if: always()
         with:
-          name: install-all-npm-logs
-          path: |
-            ${{ runner.temp }}/npm-cache/_logs/*-eresolve-report.txt
-            ${{ runner.temp }}/npm-cache/_logs/*-debug-*.log
+          name: install-all-runtime
+          retention-days: 7
+          path: runtime-gate-artifacts/runtime.json
           if-no-files-found: ignore
