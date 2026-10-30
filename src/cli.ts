@@ -103,12 +103,11 @@ function defaultIo(): CliIo {
 }
 
 function helpText(): string {
-  const command = DEFAULT_BRAND.command;
   return [
-    `${DEFAULT_BRAND.name} ${VERSION}`,
+    `agentic-scaffold ${VERSION}`,
     `${DEFAULT_BRAND.description}`,
     "",
-    `Usage: ${command} <command> [flags]`,
+    `Usage: agentic-scaffold <command> [flags]`,
     "",
     "Commands:",
     "  summary --text <t> [--file <p>] [--top <n>]  Print text stats as JSON.",
@@ -135,7 +134,7 @@ export async function runCli(argv: string[], io: CliIo = defaultIo()): Promise<n
     request = parseArgs(argv);
   } catch (error) {
     io.err(error instanceof Error ? error.message : String(error));
-    io.err(`Run "${DEFAULT_BRAND.command} --help" for usage.`);
+    io.err(`Run "agentic-scaffold --help" for usage.`);
     return 2;
   }
   try {

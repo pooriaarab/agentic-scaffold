@@ -79,7 +79,8 @@ describe("runCli", () => {
     const io = testIo();
     const code = await runCli(["bogus"], io);
     expect(code).toBe(2);
-    expect(io.errLines.length).toBeGreaterThan(0);
+    expect(io.errLines).toContain('Run "agentic-scaffold --help" for usage.');
+    expect(io.errLines.join("\n")).not.toContain("agentic-pack");
   });
 
   test("version prints a version string", async () => {
