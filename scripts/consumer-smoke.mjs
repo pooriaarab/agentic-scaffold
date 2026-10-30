@@ -1,6 +1,6 @@
 // Verify a packed release installs and loads beside the tested companion versions.
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -17,6 +17,9 @@ try {
     `agentic-design@${manifest.devDependencies["agentic-design"]}`,
     `agentic-realtime@${manifest.devDependencies["agentic-realtime"]}`,
   ], { cwd: dir, env, stdio: "inherit" });
+  if (existsSync(join(dir, "node_modules", "agentic-scaffold", "node_modules", "agentic-identity"))) {
+    throw new Error("Scaffold did not resolve the top-level identity release");
+  }
   execFileSync("node", ["--input-type=module", "-e", `
     import { summarizeText } from 'agentic-scaffold';
     import { createMemoryAuth } from 'agentic-identity';

@@ -14,7 +14,7 @@ agentic-scaffold is an open-source TypeScript starter for developers who need a 
 npm install agentic-scaffold
 ```
 
-Requires Node.js 18 or later. Includes TypeScript declarations and three direct dependencies: the MCP SDK, Zod and agentic-identity.
+Requires Node.js 22 or later. Includes TypeScript declarations and three direct dependencies: the MCP SDK, Zod and agentic-identity.
 
 ## Run your first summary
 
@@ -92,7 +92,7 @@ The `install-all` workflow runs it on each main branch push, every day, and on d
 
 ### Last recorded run (2026-10-30)
 
-On 2026-10-30, `npm run install-all` passed without `--force` or `--legacy-peer-deps`. It installed 277 packages. The top-level releases were:
+On 2026-10-30, `npm run install-all` passed with Node 22.23.4 and npm 10.9.9, without `--force` or `--legacy-peer-deps`. It installed 277 packages. The top-level releases were:
 
 | Package | Version | Package | Version |
 | --- | --- | --- | --- |

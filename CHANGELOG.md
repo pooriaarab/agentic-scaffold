@@ -9,6 +9,7 @@ All notable changes to this package are in this file. The format follows
 ### Changed
 
 - Accept identity releases through 0.11.x while retaining support for 0.9.x and 0.10.x.
+- Require Node.js 22, as required by identity.
 
 ## 0.1.6 - 2026-10-30
 
