@@ -8,7 +8,7 @@ All notable changes to this package are in this file. The format follows
 
 ### Changed
 
-- Accept identity releases from 0.9.0 up to 1.0.0 and test with 0.12.0.
+- Accept identity releases from 0.9.0 below 1.0.0 and test with 0.12.0.
 
 ## 0.1.7 - 2026-10-30
 
