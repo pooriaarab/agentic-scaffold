@@ -14,7 +14,7 @@ agentic-scaffold is an open-source TypeScript starter for developers who need a 
 npm install agentic-scaffold
 ```
 
-Requires Node.js 18 or later. Includes TypeScript declarations and two direct dependencies: the MCP SDK and Zod.
+Requires Node.js 22 or later. Includes TypeScript declarations and three direct dependencies: the MCP SDK, Zod and agentic-identity.
 
 ## Run your first summary
 
@@ -92,21 +92,21 @@ The `install-all` workflow runs it on each main branch push, every day, and on d
 
 ### Last recorded run (2026-10-30)
 
-On 2026-10-30, `npm run install-all` passed with Node 22.23.4 and npm 10.9.9. It installed 261 packages without `--force` or `--legacy-peer-deps`. A second clean install resolved these top-level releases:
+On 2026-10-30, `npm run install-all` passed with Node 22.23.4 and npm 10.9.9, without `--force` or `--legacy-peer-deps`. It installed 277 packages. The top-level releases were:
 
 | Package | Version | Package | Version |
 | --- | --- | --- | --- |
-| agentic-identity | 0.10.0 | agentic-realtime | 0.5.0 |
-| agentic-documents | 0.12.1 | agentic-spreadsheet | 0.14.0 |
-| agentic-slides | 0.13.3 | agentic-drive | 0.10.1 |
-| agentic-tables | 0.14.0 | agentic-tasks | 0.11.2 |
-| agentic-forms | 0.11.1 | agentic-canvas | 0.14.3 |
-| agentic-formats | 0.4.3 | agentic-design | 0.9.0 |
-| agentic-assistant | 0.7.4 | agentic-comments | 0.8.4 |
+| agentic-identity | 0.11.0 | agentic-realtime | 0.6.0 |
+| agentic-documents | 0.13.0 | agentic-spreadsheet | 0.14.2 |
+| agentic-slides | 0.14.2 | agentic-drive | 0.10.2 |
+| agentic-tables | 0.15.0 | agentic-tasks | 0.12.0 |
+| agentic-forms | 0.11.3 | agentic-canvas | 0.15.0 |
+| agentic-formats | 0.4.4 | agentic-design | 0.10.1 |
+| agentic-assistant | 0.7.5 | agentic-comments | 0.8.5 |
 | agentic-link | 0.5.0 | agentic-notify | 0.6.2 |
-| agentic-search | 0.7.1 | agentic-scaffold | 0.1.5 |
+| agentic-search | 0.8.1 | agentic-scaffold | 0.1.6 |
 
-The earlier `agentic-assistant@0.7.2` peer range excluded `agentic-design@0.9.0` ([output in PR #30](https://github.com/pooriaarab/agentic-scaffold/pull/30)). The latest assistant release accepts it. Nested peer conflicts only warn and do not fail the check. See the [install-all workflow](https://github.com/pooriaarab/agentic-scaffold/actions/workflows/install-all.yml) for the latest result.
+Earlier, `agentic-assistant@0.7.4` excluded design 0.10.1, and `agentic-assistant@0.7.2` excluded design 0.9.0 ([output in PR #30](https://github.com/pooriaarab/agentic-scaffold/pull/30)). Nested peer conflicts only warn and do not fail the check. See the [install-all workflow](https://github.com/pooriaarab/agentic-scaffold/actions/workflows/install-all.yml) for the latest result.
 
 ## Limits
 
@@ -134,7 +134,7 @@ The MCP manifest is a template and keeps version `0.1.0`. Set its version
 and repository ID before publishing your own package.
 
 The repository includes a shared core contract and a publish workflow. Inspect that workflow before adopting its release process.
-Version 0.1.6 is an early starter release; interfaces can change. See [CHANGELOG.md](CHANGELOG.md).
+Version 0.1.7 is an early starter release; interfaces can change. See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
