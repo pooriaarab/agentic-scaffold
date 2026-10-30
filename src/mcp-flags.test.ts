@@ -56,7 +56,21 @@ describe("mcp flags exit without starting the server", () => {
     const request = { jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2025-03-26", capabilities: {}, clientInfo: { name: "test", version: "0.0.0" } } };
     const result = spawnSync(process.execPath, [join(dir, "mcp-bin.js"), "mcp"], { encoding: "utf8", input: `${JSON.stringify(request)}\n`, timeout: 15_000 });
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("protocolVersion");
+    expect(JSON.parse(result.stdout).result.serverInfo.name).toBe("agentic-scaffold");
+  });
+
+  test.each([
+    ["cli.js", ["mcp", "--text", "hello"]],
+    ["cli.js", ["mcp", "--help", "extra"]],
+    ["cli.js", ["mcp", "unknown"]],
+    ["mcp-bin.js", ["unknown"]],
+    ["mcp-bin.js", ["mcp", "--version", "extra"]],
+    ["mcp-bin.js", ["mcp", "mcp"]],
+  ])("%s %j rejects invalid arguments", (file, args) => {
+    const result = run(file, args);
+    expect(result.status).toBe(2);
+    expect(result.stderr).toContain("mcp");
+    expect(result.stdout).toBe("");
   });
 
   test.each([

@@ -4,6 +4,20 @@ All notable changes to this package are in this file. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the package uses
 [Semantic Versioning](https://semver.org/).
 
+## 0.1.9 - 2026-10-30
+
+### Fixed
+
+- Name the MCP server and default Worker health response agentic-scaffold.
+
+### Changed
+
+- Both MCP bins reject arguments they used to ignore, including `--text`,
+  `--file`, `--top`, and arguments after a help or version flag. Remove
+  these arguments from client configurations.
+- `DEFAULT_BRAND.name` is now `Agentic scaffold`, and
+  `DEFAULT_BRAND.command` is now `agentic-scaffold`.
+
 ## 0.1.8 - 2026-10-30
 
 ### Changed

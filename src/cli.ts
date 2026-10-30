@@ -46,6 +46,7 @@ export function parseArgs(argv: string[]): CliRequest {
   }
   request.command = first;
   if (first === "mcp" && args.length > 0) {
+    if (args.length !== 1) throw new UsageError("mcp accepts only one help or version flag");
     if (args[0] === "--help" || args[0] === "-h") {
       request.command = "help";
       return request;
@@ -54,6 +55,7 @@ export function parseArgs(argv: string[]): CliRequest {
       request.command = "version";
       return request;
     }
+    throw new UsageError(`unknown flag "${args[0]}" for "mcp"`);
   }
   while (args.length > 0) {
     const flag = args.shift() as string;

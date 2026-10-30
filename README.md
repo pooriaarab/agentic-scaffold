@@ -46,18 +46,13 @@ Start MCP with `npx agentic-scaffold mcp`. Preview routing with `npx agentic-sca
 
 ## MCP arguments
 
-The main bin starts the server with `agentic-scaffold mcp`. After `mcp`,
-`--help` or `-h` prints CLI help, and `--version` or `-V` prints the
-version. These flags are recognized only in the first position after `mcp`;
-any later arguments are ignored when one of these flags is first. Otherwise,
-the CLI parses the remaining arguments as flags and rejects unknown flags.
-It accepts `--text`, `--file`, and `--top` with values for `mcp` but ignores
-them when it starts the server. `--top` must still be an integer of 0 or more.
+The main bin accepts `agentic-scaffold mcp` to start the server. The
+only arguments after `mcp` are a single `--help`, `-h`, `--version`, or
+`-V` flag. Help and version flags print and exit.
 
-The dedicated bin starts the server with `agentic-scaffold-mcp`, with an
-optional first `mcp` argument. It reads only the first argument after that
-optional word. Help and version flags print and exit; any other argument
-starts the server, and later arguments are ignored.
+The dedicated bin accepts `agentic-scaffold-mcp` with an optional `mcp`
+word, followed by at most one of the same flags. With no flag, it starts
+the server. Both bins reject unknown or extra arguments with exit code 2.
 
 ## MCP server behaviour
 
@@ -113,7 +108,7 @@ Earlier, `agentic-assistant@0.7.4` excluded design 0.10.1, and `agentic-assistan
 This starter has zero vendor-specific integrations. Local dispatch creates a receipt without external delivery.
 CLI and MCP dispatch use the local adapter by default; SDK callers can supply the HTTP adapter.
 HTTP delivery defaults to a ten-second timeout, with no retries. Cost units count text length rather than billing charges.
-Reports reset when the process exits. MCP identity still uses the starter name `agentic-pack`.
+Reports reset when the process exits.
 
 ## Customize a cloned starter
 
@@ -134,7 +129,7 @@ The MCP manifest is a template and keeps version `0.1.0`. Set its version
 and repository ID before publishing your own package.
 
 The repository includes a shared core contract and a publish workflow. Inspect that workflow before adopting its release process.
-Version 0.1.7 is an early starter release; interfaces can change. See [CHANGELOG.md](CHANGELOG.md).
+Version 0.1.9 is an early starter release; interfaces can change. See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
