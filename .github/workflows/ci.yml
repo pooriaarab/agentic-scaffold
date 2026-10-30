@@ -36,6 +36,6 @@ jobs:
         with:
           node-version: "22"
       - run: npm ci
-      - run: npm install --no-save --package-lock=false agentic-identity@${{ matrix.identity }}
+      - run: npm install --no-save agentic-identity@${{ matrix.identity }}
       - run: npm run typecheck
       - run: npm test

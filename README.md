@@ -122,7 +122,7 @@ The MCP manifest is a template and keeps version `0.1.0`. Set its version
 and repository ID before publishing your own package.
 
 The repository includes a shared core contract and a publish workflow. Inspect that workflow before adopting its release process.
-Version 0.1.6 is an early starter release; interfaces can change. See [CHANGELOG.md](CHANGELOG.md).
+Version 0.1.7 is an early starter release; interfaces can change. See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
