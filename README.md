@@ -77,8 +77,12 @@ A missing or bad key gets 401. A principal without the scope gets 403.
 Missing configuration or an unavailable identity store gets 503.
 `GET /health` stays open. An optional `AUTH` port supports other backends.
 
-For local development only, set `AUTH_UNSAFE_DEV_TOKENS=1` and the
-`AUTH_TOKENS` secret. This fallback skips stored identity and revocation.
+For local development with D1, set `REGION=unknown`. Local D1 does not
+confirm an EU region. Keep `REGION=eu` for the deployed EU database.
+
+To use the token fallback for local development, first remove the
+`IDENTITY_DB` binding from your local Wrangler configuration. Then set
+`AUTH_UNSAFE_DEV_TOKENS=1` and the `AUTH_TOKENS` secret. This fallback skips stored identity and revocation.
 The token table maps tokens (32 bytes or more) to `kind:name`, or to
 `{ "as": "kind:name", "scopes": ["text:read"] }`. A bad entry refuses the
 whole table. A token table alone does not enable auth. When `IDENTITY_DB`

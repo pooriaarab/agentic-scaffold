@@ -146,8 +146,14 @@ describe("shared identity database", () => {
 
   test("does not borrow rights from a different principal", async () => {
     const { env, docs, token } = await identity();
-    docs.set("principals/child", { id: "child", kind: "agent", scopes: ["other:read"] });
+    docs.set("principals/child", { id: "child", kind: "agent_of_human", parentId: "root", scopes: ["other:read"] });
     expect((await worker.fetch(post("/api/v1/summarize", { text: "x" }, token), env)).status).toBe(403);
+  });
+
+  test("a credential cannot name a missing principal", async () => {
+    const { env, docs, token } = await identity();
+    docs.delete("principals/child");
+    expect((await worker.fetch(post("/api/v1/summarize", { text: "x" }, token), env)).status).toBe(401);
   });
 
   test("revoking a parent denies its child on the next request", async () => {
