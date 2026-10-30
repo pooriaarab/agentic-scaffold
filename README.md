@@ -62,7 +62,28 @@ flag to inspect the command without starting the server.
 
 ## Migration: Worker auth
 
-`POST /summarize` is gone. Use `POST /api/v1/summarize`. It needs `Authorization: Bearer <key>` and a principal with the `text:read` scope. A missing or bad key gets 401. A key without the scope gets 403. Set the `AUTH_TOKENS` secret to a JSON object of bearer token (32 bytes or more) to `kind:name`, or to `{ "as": "kind:name", "scopes": ["text:read"] }`. A bad entry refuses the whole table. If `AUTH_TOKENS` is missing, the route answers 503. `GET /health` stays open.
+`POST /summarize` is gone. Use `POST /api/v1/summarize` with
+`Authorization: Bearer <key>`. The Worker uses `createStoreAuth` from
+agentic-identity by default. Bind `IDENTITY_DB` to the identity Worker's D1
+database. Set `REGION` to its region (`eu` for EU deployments). Create that
+database with an EU location hint (`weur` or `eeur`) and apply the
+`D1_SCHEMA` from `agentic-identity/cloudflare` before use. The template
+`wrangler.jsonc` shows the binding. Replace its placeholder database ID.
+
+Issue credentials through agentic-identity. Each credential names a stored
+principal. The shared adapter checks expiry, revocation, and the full
+principal chain on each request. The resolved principal needs `text:read`.
+A missing or bad key gets 401. A principal without the scope gets 403.
+Missing configuration or an unavailable identity store gets 503.
+`GET /health` stays open. An optional `AUTH` port supports other backends.
+
+For local development only, set `AUTH_UNSAFE_DEV_TOKENS=1` and the
+`AUTH_TOKENS` secret. This fallback skips stored identity and revocation.
+The token table maps tokens (32 bytes or more) to `kind:name`, or to
+`{ "as": "kind:name", "scopes": ["text:read"] }`. A bad entry refuses the
+whole table. A token table alone does not enable auth. When `IDENTITY_DB`
+is set, the Worker always uses the identity store instead of this fallback.
+Do not enable the fallback in production.
 
 ## Smoke test of the published packages
 
@@ -129,7 +150,7 @@ The MCP manifest is a template and keeps version `0.1.0`. Set its version
 and repository ID before publishing your own package.
 
 The repository includes a shared core contract and a publish workflow. Inspect that workflow before adopting its release process.
-Version 0.1.9 is an early starter release; interfaces can change. See [CHANGELOG.md](CHANGELOG.md).
+Version 0.2.0 is an early starter release; interfaces can change. See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
