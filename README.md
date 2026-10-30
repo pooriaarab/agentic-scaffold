@@ -69,6 +69,10 @@ npm run install-all
 
 The `install-all` workflow runs it every day and on demand. When it fails, the workflow uploads npm's logs, including any ERESOLVE report. This check is not a pull request gate. A failure can come from another package's release, so it does not block PRs here. Pull request CI does not run the live install. It runs the script's unit tests as part of `npm test`.
 
+### Last recorded run (2026-10-30)
+
+A local `npm run install-all` with npm 10.9.9 failed with ERESOLVE and exit code 1 ([output in PR #30](https://github.com/pooriaarab/agentic-scaffold/pull/30)). `agentic-assistant@0.7.2` requires the optional peer `agentic-design@>=0.5.0 <0.9.0`, but the install selected `agentic-design@0.9.0`. Both packages are in the install list, so this is a direct conflict. Nested peer conflicts only warn and do not fail the check. See the [daily install-all workflow](https://github.com/pooriaarab/agentic-scaffold/actions/workflows/install-all.yml) for the latest result.
+
 ## Limits
 
 This starter has zero vendor-specific integrations. Local dispatch creates a receipt without external delivery.
