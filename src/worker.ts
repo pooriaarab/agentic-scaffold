@@ -29,7 +29,7 @@ export default {
   async fetch(request: Request, env: WorkerEnv): Promise<Response> {
     const url = new URL(request.url);
     if (request.method === "GET" && url.pathname === "/health") {
-      return json({ ok: true, pack: env.PACK_NAME ?? "agentic-pack", version: VERSION });
+      return json({ ok: true, pack: env.PACK_NAME ?? "agentic-scaffold", version: VERSION });
     }
     if (request.method === "POST" && url.pathname === "/api/v1/summarize") {
       if (!env.AUTH && !env.AUTH_TOKENS) {

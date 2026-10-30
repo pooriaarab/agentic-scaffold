@@ -39,8 +39,8 @@ import { defineBrand, type BrandConfig } from "./core.js";
 import { VERSION } from "./version.js";
 
 export const DEFAULT_BRAND: BrandConfig = defineBrand({
-  name: "Agentic pack",
-  command: "agentic-pack",
+  name: "Agentic scaffold",
+  command: "agentic-scaffold",
   description: "Canonical scaffold for a CLI plus library plus MCP server pack.",
   keywords: ["cli", "mcp", "scaffold", "starter", "typescript"],
   version: VERSION,

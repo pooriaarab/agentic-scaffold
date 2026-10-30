@@ -31,6 +31,12 @@ function post(path: string, body: unknown, token?: string): Request {
 }
 
 describe("worker", () => {
+  test("GET /health uses the package name by default", async () => {
+    const response = await worker.fetch(new Request("https://pack.test/health"), {});
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ ok: true, pack: "agentic-scaffold" });
+  });
+
   test("GET /health reports ok without auth", async () => {
     const response = await worker.fetch(new Request("https://pack.test/health"), {
       PACK_NAME: "probe",
