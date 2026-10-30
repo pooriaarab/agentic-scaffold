@@ -1,4 +1,5 @@
-import type { Auth } from "agentic-identity";
+import { createStoreAuth, parseRegion, type Auth } from "agentic-identity";
+import { createD1Store, type D1Like } from "agentic-identity/cloudflare";
 import { requirePrincipal } from "agentic-identity/http";
 import { createTokenAuth } from "./auth.js";
 import { summarizeText } from "./core.js";
@@ -6,13 +7,15 @@ import { VERSION } from "./version.js";
 
 export interface WorkerEnv {
   PACK_NAME?: string;
-  /**
-   * Secret. A JSON object of bearer token to `kind:name` (see `createTokenAuth`).
-   * Cloudflare bindings hold strings, so the Worker builds its Auth from this.
-   * Without it, protected routes answer 503.
-   */
+  /** Identity database shared with the identity Worker. */
+  IDENTITY_DB?: D1Like;
+  /** Declare the database region. Use "unknown" only for local development. */
+  REGION?: string;
+  /** Explicit development fallback. Ignored when IDENTITY_DB is set. */
+  AUTH_UNSAFE_DEV_TOKENS?: string;
+  /** Development token table; requires AUTH_UNSAFE_DEV_TOKENS=1. */
   AUTH_TOKENS?: string;
-  /** Test seam: an Auth port that replaces `AUTH_TOKENS`. A Cloudflare binding cannot hold an object. */
+  /** Optional Auth port override for other backends and tests. */
   AUTH?: Auth;
 }
 
@@ -32,10 +35,17 @@ export default {
       return json({ ok: true, pack: env.PACK_NAME ?? "agentic-scaffold", version: VERSION });
     }
     if (request.method === "POST" && url.pathname === "/api/v1/summarize") {
-      if (!env.AUTH && !env.AUTH_TOKENS) {
-        return json({ error: "auth is not configured" }, 503);
+      let auth: Auth;
+      try {
+        if (env.AUTH) auth = env.AUTH;
+        else if (env.IDENTITY_DB) {
+          auth = createStoreAuth(createD1Store(env.IDENTITY_DB, { region: parseRegion(env.REGION) }));
+        } else if (env.AUTH_UNSAFE_DEV_TOKENS === "1" && env.AUTH_TOKENS) {
+          auth = createTokenAuth(env.AUTH_TOKENS);
+        } else return json({ error: "auth is not configured" }, 503);
+      } catch {
+        return json({ error: "auth configuration is invalid" }, 503);
       }
-      const auth = env.AUTH ?? createTokenAuth(env.AUTH_TOKENS);
       const principal = await requirePrincipal(request, auth, { scope: SUMMARIZE_SCOPE });
       if (principal instanceof Response) {
         return principal;

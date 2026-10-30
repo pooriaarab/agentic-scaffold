@@ -4,7 +4,14 @@
   "name": "__PACK_NAME__",
   "main": "src/worker.ts",
   "compatibility_date": "2026-01-01",
+  // Use the same D1 database as the identity Worker. Apply D1_SCHEMA first.
+  "d1_databases": [{
+    "binding": "IDENTITY_DB",
+    "database_name": "__PACK_NAME__-identity",
+    "database_id": "REPLACE_WITH_IDENTITY_DATABASE_ID"
+  }],
   "vars": {
-    "PACK_NAME": "__PACK_NAME__"
+    "PACK_NAME": "__PACK_NAME__",
+    "REGION": "eu"
   }
 }

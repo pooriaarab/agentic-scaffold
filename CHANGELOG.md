@@ -4,6 +4,14 @@ All notable changes to this package are in this file. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the package uses
 [Semantic Versioning](https://semver.org/).
 
+## 0.2.0 - 2026-10-30
+
+### Changed
+
+- Use shared identity credentials and principal chains in the Worker starter.
+- Require an explicit development flag for the local token table.
+- Add an identity database binding to the cloned Worker template.
+
 ## 0.1.9 - 2026-10-30
 
 ### Fixed
