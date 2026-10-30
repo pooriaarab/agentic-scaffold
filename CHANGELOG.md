@@ -9,7 +9,14 @@ All notable changes to this package are in this file. The format follows
 ### Fixed
 
 - Name the MCP server and default Worker health response agentic-scaffold.
-- Reject extra and unknown MCP arguments in both bins and document the grammar.
+
+### Changed
+
+- Both MCP bins reject arguments they used to ignore, including `--text`,
+  `--file`, `--top`, and arguments after a help or version flag. Remove
+  these arguments from client configurations.
+- `DEFAULT_BRAND.name` is now `Agentic scaffold`, and
+  `DEFAULT_BRAND.command` is now `agentic-scaffold`.
 
 ## 0.1.8 - 2026-10-30
 
