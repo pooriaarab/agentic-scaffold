@@ -4,6 +4,12 @@ All notable changes to this package are in this file. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the package uses
 [Semantic Versioning](https://semver.org/).
 
+## 0.1.7 - 2026-10-30
+
+### Changed
+
+- Accept identity releases through 0.11.x while retaining support for 0.9.x and 0.10.x.
+
 ## 0.1.6 - 2026-10-30
 
 ### Fixed
