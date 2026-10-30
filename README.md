@@ -92,9 +92,21 @@ The `install-all` workflow runs it on each main branch push, every day, and on d
 
 ### Last recorded run (2026-10-30)
 
-On 2026-10-30, `npm run install-all` failed with `ERESOLVE`. The latest `agentic-assistant@0.7.4` requires `agentic-design >=0.8.0 <0.10.0`, but the latest design release is 0.10.1. This conflict is outside this package. No peer resolution override was used.
+On 2026-10-30, `npm run install-all` passed without `--force` or `--legacy-peer-deps`. It installed 277 packages. The top-level releases were:
 
-The earlier `agentic-assistant@0.7.2` also excluded design 0.9.0 ([output in PR #30](https://github.com/pooriaarab/agentic-scaffold/pull/30)). Nested peer conflicts only warn and do not fail the check. See the [install-all workflow](https://github.com/pooriaarab/agentic-scaffold/actions/workflows/install-all.yml) for the latest result.
+| Package | Version | Package | Version |
+| --- | --- | --- | --- |
+| agentic-identity | 0.11.0 | agentic-realtime | 0.6.0 |
+| agentic-documents | 0.13.0 | agentic-spreadsheet | 0.14.2 |
+| agentic-slides | 0.14.2 | agentic-drive | 0.10.2 |
+| agentic-tables | 0.15.0 | agentic-tasks | 0.12.0 |
+| agentic-forms | 0.11.3 | agentic-canvas | 0.15.0 |
+| agentic-formats | 0.4.4 | agentic-design | 0.10.1 |
+| agentic-assistant | 0.7.5 | agentic-comments | 0.8.5 |
+| agentic-link | 0.5.0 | agentic-notify | 0.6.2 |
+| agentic-search | 0.8.1 | agentic-scaffold | 0.1.6 |
+
+Earlier, `agentic-assistant@0.7.4` excluded design 0.10.1, and `agentic-assistant@0.7.2` excluded design 0.9.0 ([output in PR #30](https://github.com/pooriaarab/agentic-scaffold/pull/30)). Nested peer conflicts only warn and do not fail the check. See the [install-all workflow](https://github.com/pooriaarab/agentic-scaffold/actions/workflows/install-all.yml) for the latest result.
 
 ## Limits
 
